@@ -62,9 +62,7 @@ install(TARGETS fix-csv
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(fix-csv)
-endif()
+qt_finalize_executable(fix-csv)
 
 set(TEST_FILES
   tests/test_csvmanager.cpp

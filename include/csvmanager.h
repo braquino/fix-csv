@@ -6,27 +6,30 @@
 #include <vector>
 #include <memory>
 #include <stack>
+#include <regex>
 
 enum class SimpleType {
-    STRING, NUMBER
+    EMPTY, STRING, NUMBER, INTEGER
 };
 
 struct Field {
-    int char_count;
+    uint16_t char_count;
     std::string str;
-    SimpleType stype;
 
     Field(const std::string& s);
     std::string hex() const;
+    SimpleType stype() const;
+    std::string stype_str() const;
 };
 
 struct Row {
-    long char_count;
-    int col_count;
+    uint32_t char_count;
+    uint16_t col_count;
     std::string str;
     std::vector<Field> fields;
+    bool error_state;
 
-    Row(const std::string& s);
+    Row(const std::string& s, char sep, char quote);
 };
 
 class CsvManager
@@ -37,16 +40,21 @@ public:
     char newline;
     CsvManager();
     void open_file(const std::string& path);
-    std::string next_row();
-    std::string back_row();
-    long get_row() {return row;}
+    long curr_row_num() {return row;}
+    Row next_row();
+    Row back_row();
+    Row curr_row();
 
 private:
+    int header_count;
+    long long size;
     std::string filename;
     std::stack<long long> last_idx;
     long row;
     std::unique_ptr<std::fstream> fin;
     std::unique_ptr<std::fstream> ftmp;
+    std::string next_row_str();
+    std::string back_row_str();
 };
 
 #endif // CSVMANAGER_H
