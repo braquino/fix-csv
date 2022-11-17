@@ -6,7 +6,7 @@ TEST(CsvManager, Field)
     Field s{"field1"};
     ASSERT_EQ(s.char_count, 6);
     ASSERT_EQ(s.str, "field1");
-    ASSERT_EQ(s.hex(), "<0x66><0x69><0x65><0x6c><0x64><0x31>");
+    ASSERT_EQ(s.hex(), "66 69 65 6c 64 31 ");
     ASSERT_EQ(s.stype(), SimpleType::STRING);
 
     Field n{"456.6"};
@@ -57,4 +57,26 @@ TEST(CsvManager, getNextRow)
     //    Row r3b = csv.back_row();
     //    ASSERT_EQ(r3b.str, "\"904,2\",xxx,,ì");
     //    ASSERT_EQ(r3b.col_count, 4);
+}
+
+TEST(CsvManager, getNextError)
+{
+    CsvManager csv{};
+    csv.open_file("../tests/resources/file_test_2.csv");
+    Row re0 = csv.next_error();
+    ASSERT_EQ(re0.str, "56,\"field,comma\",");
+    ASSERT_EQ(re0.col_count, 3);
+    Row re1 = csv.next_error();
+    ASSERT_EQ(re1.str, "\"904,2\",xx,x,,ì");
+    ASSERT_EQ(re1.col_count, 5);
+}
+
+TEST(CsvManager, getRowsCount)
+{
+    CsvManager csv1{};
+    csv1.open_file("../tests/resources/file_test_1.csv");
+    ASSERT_EQ(csv1.count_rows(), 4);
+    CsvManager csv2{};
+    csv2.open_file("../tests/resources/file_test_2.csv");
+    ASSERT_EQ(csv2.count_rows(), 5);
 }

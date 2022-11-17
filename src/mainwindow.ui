@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>90</y>
+      <y>50</y>
       <width>641</width>
       <height>25</height>
      </rect>
@@ -41,7 +41,7 @@
     <property name="geometry">
      <rect>
       <x>192</x>
-      <y>51</y>
+      <y>11</y>
       <width>71</width>
       <height>20</height>
      </rect>
@@ -54,7 +54,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>90</y>
+      <y>50</y>
       <width>101</width>
       <height>20</height>
      </rect>
@@ -67,7 +67,7 @@
     <property name="geometry">
      <rect>
       <x>950</x>
-      <y>50</y>
+      <y>10</y>
       <width>41</width>
       <height>20</height>
      </rect>
@@ -132,7 +132,7 @@
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>50</y>
+      <y>10</y>
       <width>641</width>
       <height>25</height>
      </rect>
@@ -151,7 +151,7 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>50</y>
+      <y>10</y>
       <width>181</width>
       <height>25</height>
      </rect>
@@ -185,26 +185,10 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_back_error">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>350</y>
-      <width>111</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;&lt; Back error</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_next_error">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>10</x>
       <y>350</y>
       <width>111</width>
       <height>25</height>
@@ -217,14 +201,14 @@
    <widget class="QLabel" name="label_header_count">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>380</x>
       <y>180</y>
-      <width>151</width>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Header fields count:</string>
+     <string>Fields in header:</string>
     </property>
    </widget>
    <widget class="QLabel" name="txt_header_count">
@@ -249,14 +233,14 @@
    <widget class="QLabel" name="label_cur_fields_count">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>610</x>
       <y>180</y>
-      <width>151</width>
+      <width>131</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>This row fields count:</string>
+     <string>Fields in this row:</string>
     </property>
    </widget>
    <widget class="QLabel" name="txt_cur_fields_count">
@@ -314,6 +298,161 @@
      <string>Close File</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_count_rows">
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>50</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Count rows</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txt_separator">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>100</y>
+      <width>16</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>,</string>
+    </property>
+    <property name="maxLength">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txt_quote">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>130</y>
+      <width>16</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&quot;</string>
+    </property>
+    <property name="maxLength">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_fname_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>130</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Quote:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_fname_3">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Separator:</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>88</y>
+      <width>211</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_reopen">
+    <property name="geometry">
+     <rect>
+      <x>124</x>
+      <y>100</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Apply</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_save">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>80</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save File</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_save_row">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>350</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save modified row</string>
+    </property>
+   </widget>
+   <zorder>frame</zorder>
+   <zorder>btn_open_file</zorder>
+   <zorder>txt_out_filename</zorder>
+   <zorder>label_fname</zorder>
+   <zorder>label_out_fname</zorder>
+   <zorder>label_rows_qtt</zorder>
+   <zorder>txt_raw_row</zorder>
+   <zorder>label_row</zorder>
+   <zorder>btn_back_row</zorder>
+   <zorder>btn_next_row</zorder>
+   <zorder>txt_filename</zorder>
+   <zorder>txt_rows_count</zorder>
+   <zorder>txt_current_row</zorder>
+   <zorder>btn_next_error</zorder>
+   <zorder>label_header_count</zorder>
+   <zorder>txt_header_count</zorder>
+   <zorder>label_cur_fields_count</zorder>
+   <zorder>txt_cur_fields_count</zorder>
+   <zorder>label_count_err</zorder>
+   <zorder>table_row</zorder>
+   <zorder>btn_close_file</zorder>
+   <zorder>btn_count_rows</zorder>
+   <zorder>txt_separator</zorder>
+   <zorder>txt_quote</zorder>
+   <zorder>label_fname_2</zorder>
+   <zorder>label_fname_3</zorder>
+   <zorder>btn_reopen</zorder>
+   <zorder>btn_save</zorder>
+   <zorder>btn_save_row</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

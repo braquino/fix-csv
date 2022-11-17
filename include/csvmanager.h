@@ -7,6 +7,7 @@
 #include <memory>
 #include <stack>
 #include <regex>
+#include <filesystem>
 
 enum class SimpleType {
     EMPTY, STRING, NUMBER, INTEGER
@@ -44,15 +45,22 @@ public:
     Row next_row();
     Row back_row();
     Row curr_row();
+    Row next_error();
+    void replace_row(long row_number, const std::string& content);
+    long count_rows();
+    long long get_position();
+    long long get_size() {return size;}
+    void save_file(const std::string& out_path);
+    void reset();
 
 private:
     int header_count;
     long long size;
+    std::map<long, std::string> replaced_rows;
     std::string filename;
     std::stack<long long> last_idx;
     long row;
     std::unique_ptr<std::fstream> fin;
-    std::unique_ptr<std::fstream> ftmp;
     std::string next_row_str();
     std::string back_row_str();
 };

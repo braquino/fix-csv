@@ -9,6 +9,8 @@ CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, r
 
 void CsvManager::open_file(const std::string& path)
 {
+    this->filename = path;
+    size = std::filesystem::file_size(path);
     if (this->fin == nullptr)
     {
         this->fin.reset(new std::fstream{path.c_str(), std::ios::in});
@@ -18,6 +20,14 @@ void CsvManager::open_file(const std::string& path)
         if (this->fin->is_open()) this->fin->close();
         this->fin->open(path.c_str(), std::ios::in);
     }
+}
+
+long long CsvManager::get_position()
+{
+    if (this->fin != nullptr && this->fin->is_open())
+        return this->fin->tellg();
+    else
+        return 0;
 }
 
 std::string CsvManager::next_row_str()
@@ -66,12 +76,66 @@ std::string CsvManager::back_row_str()
 
 Row CsvManager::next_row()
 {
-    return Row{next_row_str(), sep, quote};
+    auto r = Row{next_row_str(), sep, quote};
+    if (this->row == 1) this->header_count = r.col_count;
+    return r;
 }
 
 Row CsvManager::back_row()
 {
     return Row{back_row_str(), sep, quote};
+}
+
+Row CsvManager::next_error()
+{
+    if (this->row == 0) this->next_row();
+    while(true)
+    {
+        Row r = this->next_row();
+        if (r.col_count != this->header_count || r.error_state) return r;
+    }
+}
+
+long CsvManager::count_rows()
+{
+    long count = 0;
+    while(this->fin)
+    {
+        if (this->next_row_str().empty()) break;
+        count++;
+    }
+    return count;
+}
+
+void CsvManager::replace_row(long row_number, const std::string& content)
+{
+    this->replaced_rows[row_number] = content;
+}
+
+void CsvManager::reset()
+{
+    this->row = 0;
+    this->last_idx = std::stack<long long>{{0}};
+    if (this->fin != nullptr && this->fin->is_open()) this->fin->close();
+    if (!this->filename.empty()) this->fin->open(this->filename);
+}
+
+void CsvManager::save_file(const std::string& out_path)
+{
+    this->reset();
+    std::fstream out_f{out_path, std::ios::out};
+    while(this->fin)
+    {
+        std::string r = this->next_row_str();
+        if (r.empty()) break;
+        if (this->replaced_rows.find(this->row) != this->replaced_rows.end())
+        {
+            std::string& rep_row = this->replaced_rows[this->row];
+            if (!rep_row.empty()) out_f << rep_row << std::endl;
+        }
+        else out_f << r << std::endl;
+    }
+    out_f.close();
 }
 
 Field::Field(const std::string& s)
@@ -85,7 +149,7 @@ std::string Field::hex() const
     std::stringstream ss;
     for (int i=0; i < str.size(); i++)
     {
-        ss << fmt::format("<{:#x}>", (unsigned char)str[i]);
+        ss << fmt::format("{:x} ", (unsigned char)str[i]);
     }
     return ss.str();
 }
