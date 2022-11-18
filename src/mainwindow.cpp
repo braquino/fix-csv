@@ -72,11 +72,6 @@ void MainWindow::on_btn_open_file_clicked()
 void MainWindow::row_change(const Row& r)
 {
     spdlog::debug("Row received: " + r.str);
-    if (r.fields.empty())
-    {
-        spdlog::warn("No more rows");
-        return;
-    }
     ui->txt_raw_row->setText(QString::fromStdString(r.str));
     long r_num = this->csv->curr_row_num();
     ui->txt_current_row->setText(QString::fromStdString(std::to_string(r_num)));

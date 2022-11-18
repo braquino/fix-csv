@@ -2,7 +2,7 @@
 #include <sstream>
 #include <fmt/core.h>
 
-CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, row{0}, header_count{0}, size{0}
+CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, row{0}, header_count{0}, size{0}, last_row{""}
 {
 
 }
@@ -40,21 +40,21 @@ std::string CsvManager::next_row_str()
 
         bool esc{false};
         char c;
-        while (this->fin->peek() != EOF)
+        while (this->fin->get(c))
         {
-            this->fin->get(c);
             idx++;
             if (c == quote) esc = !esc;
-            if (!esc && c == newline) break;
             ss << c;
+            if (!esc && c == newline) break;
         }
         std::string str_row = ss.str();
-        if (str_row.size() > 1)
+        if (!str_row.empty())
         {
             this->last_idx.push(idx);
             this->row++;
             return str_row;
         }
+
     }
     return "";
 }
@@ -76,23 +76,35 @@ std::string CsvManager::back_row_str()
 
 Row CsvManager::next_row()
 {
-    auto r = Row{next_row_str(), sep, quote};
-    if (this->row == 1) this->header_count = r.col_count;
-    return r;
+    std::string r_str = next_row_str();
+    if (!r_str.empty())
+    {
+        auto r = Row{r_str, sep, quote, newline};
+        last_row = r;
+        if (this->row == 1) this->header_count = r.col_count;
+        return r;
+    }
+    else
+    {
+        return this->curr_row();
+    }
 }
 
 Row CsvManager::back_row()
 {
-    return Row{back_row_str(), sep, quote};
+    return Row{back_row_str(), sep, quote, newline};
 }
 
 Row CsvManager::next_error()
 {
     if (this->row == 0) this->next_row();
+    long _lrow = this->row;
     while(true)
     {
         Row r = this->next_row();
+        if (this->row == _lrow) return r;
         if (r.col_count != this->header_count || r.error_state) return r;
+        _lrow = this->row;
     }
 }
 
@@ -131,9 +143,19 @@ void CsvManager::save_file(const std::string& out_path)
         if (this->replaced_rows.find(this->row) != this->replaced_rows.end())
         {
             std::string& rep_row = this->replaced_rows[this->row];
-            if (!rep_row.empty()) out_f << rep_row << std::endl;
+            if (rep_row != "" && rep_row[0] != newline)
+            {
+                out_f << rep_row;
+                if (rep_row[rep_row.size() - 1] != newline)
+                    out_f << newline;
+            }
         }
-        else out_f << r << std::endl;
+        else
+        {
+            out_f << r;
+            if (r[r.size() - 1] != newline)
+                out_f << newline;
+        }
     }
     out_f.close();
 }
@@ -171,16 +193,18 @@ std::string Field::stype_str() const
     else return "String";
 }
 
-Row::Row(const std::string& s, char sep, char quote) : str{s}, char_count{(uint32_t)s.size()}
+Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, char_count{(uint32_t)s.size()}
 {
     error_state = false;
     // TODO: Add error state true when an escape char is found oddly in the midle of the string
     std::stringstream ss_f;
     bool esc = false;
-    for (const char& c : s)
+    char c;
+    for (int i=0; i < s.size(); i++)
     {
+        c = s[i];
         if (c == quote) esc = !esc;
-        if (c == sep && !esc)
+        if ((c == sep || c == newline) && !esc)
         {
             fields.push_back(Field{ss_f.str()});
             ss_f.str(std::string());
@@ -189,8 +213,8 @@ Row::Row(const std::string& s, char sep, char quote) : str{s}, char_count{(uint3
         else
         {
             ss_f << c;
+            if (i + 1 == s.size()) fields.push_back(Field{ss_f.str()});
         }
     }
-    if (s.size() > 0) fields.push_back(Field{ss_f.str()});
     col_count = fields.size();
 }

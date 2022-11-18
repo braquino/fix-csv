@@ -30,7 +30,7 @@ struct Row {
     std::vector<Field> fields;
     bool error_state;
 
-    Row(const std::string& s, char sep, char quote);
+    Row(const std::string& s, char sep = ',', char quote = '"', char newline = '\n');
 };
 
 class CsvManager
@@ -44,7 +44,7 @@ public:
     long curr_row_num() {return row;}
     Row next_row();
     Row back_row();
-    Row curr_row();
+    Row curr_row() {return last_row;}
     Row next_error();
     void replace_row(long row_number, const std::string& content);
     long count_rows();
@@ -63,6 +63,7 @@ private:
     std::unique_ptr<std::fstream> fin;
     std::string next_row_str();
     std::string back_row_str();
+    Row last_row;
 };
 
 #endif // CSVMANAGER_H
