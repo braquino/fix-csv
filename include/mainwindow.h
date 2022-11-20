@@ -52,8 +52,6 @@ private:
     void open(const std::string& filename);
     void setup_log();
 
-    std::ostringstream ss_log;
-
     template <typename T>
     void waiting(std::shared_ptr<CsvManager> _csv, long long& file_size, std::future<T>& exec)
     {
