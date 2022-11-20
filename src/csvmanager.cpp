@@ -135,8 +135,12 @@ void CsvManager::reset()
 void CsvManager::save_file(const std::string& out_path)
 {
     this->reset();
-    std::fstream out_f{out_path, std::ios::out};
-    while(this->fin)
+    std::fstream out_f;
+    out_f.open(out_path, std::ios::out);
+    if(!out_f.is_open())
+        throw std::runtime_error("Error trying to save file: " + out_path);
+
+    while(!this->fin->eof())
     {
         std::string r = this->next_row_str();
         if (r.empty()) break;
@@ -179,8 +183,8 @@ std::string Field::hex() const
 SimpleType Field::stype() const
 {
     if (str.size() == 0) return SimpleType::EMPTY;
-    if (std::regex_match(str, std::regex("^[0-9]*$"))) return SimpleType::INTEGER;
-    if (std::regex_match(str, std::regex("^([0-9]|[.]|,)*$"))) return SimpleType::NUMBER;
+    if (std::regex_match(str, std::regex("^\"?[0-9]*\"?$"))) return SimpleType::INTEGER;
+    if (std::regex_match(str, std::regex("^\"?([0-9]|[.]|,)*\"?$"))) return SimpleType::NUMBER;
     else return SimpleType::STRING;
 }
 
@@ -191,6 +195,28 @@ std::string Field::stype_str() const
     if (t == SimpleType::NUMBER) return "Number";
     if (t == SimpleType::EMPTY) return "Empty";
     else return "String";
+}
+
+bool Field::quote_error(const char& quote) const
+{
+    bool err = false;
+    int count_quote = 0;
+    for (int i=0; i < this->str.size(); i++)
+    {
+        const char& c{this->str[i]};
+        bool open_close = ((i == 0 || i == this->str.size() - 1) && c == quote);
+        if (!open_close)
+        {
+            if (c == quote)
+                count_quote++;
+            else
+            {
+                err = err || (count_quote % 2 != 0);
+                count_quote = 0;
+            }
+        }
+    }
+    return err;
 }
 
 Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, char_count{(uint32_t)s.size()}

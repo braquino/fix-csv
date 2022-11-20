@@ -21,6 +21,7 @@ struct Field {
     std::string hex() const;
     SimpleType stype() const;
     std::string stype_str() const;
+    bool quote_error(const char& quote = '"') const;
 };
 
 struct Row {

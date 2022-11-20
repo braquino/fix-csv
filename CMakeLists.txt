@@ -58,6 +58,15 @@ set_target_properties(fix-csv PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  message("-- CMake is doing release stuffs")
+  add_compile_options(-O3)
+  target_compile_definitions(fix-csv PRIVATE DEBUG=0)
+else()
+  message("-- CMake is doing debbug stuffs")
+  target_compile_definitions(fix-csv PRIVATE DEBUG=1)
+endif()
+
 install(TARGETS fix-csv
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>731</height>
+    <height>842</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -281,7 +281,7 @@
       <x>10</x>
       <y>400</y>
       <width>1171</width>
-      <height>181</height>
+      <height>241</height>
      </rect>
     </property>
    </widget>
@@ -424,6 +424,48 @@
      <string>Save modified row</string>
     </property>
    </widget>
+   <widget class="QTextEdit" name="txt_logs">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>670</y>
+      <width>1171</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_logs">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>650</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Logs:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_delete_row">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>350</y>
+      <width>81</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delete row</string>
+    </property>
+   </widget>
    <zorder>frame</zorder>
    <zorder>btn_open_file</zorder>
    <zorder>txt_out_filename</zorder>
@@ -453,6 +495,9 @@
    <zorder>btn_reopen</zorder>
    <zorder>btn_save</zorder>
    <zorder>btn_save_row</zorder>
+   <zorder>txt_logs</zorder>
+   <zorder>label_logs</zorder>
+   <zorder>btn_delete_row</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

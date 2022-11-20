@@ -4,7 +4,11 @@
 #include <QMainWindow>
 #include "csvmanager.h"
 #include <QTableWidgetItem>
+#include <QProgressDialog>
 #include <spdlog/spdlog.h>
+#include <thread>
+#include <future>
+#include <sstream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -39,13 +43,27 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    std::unique_ptr<CsvManager> csv;
+    std::shared_ptr<CsvManager> csv;
 
     void row_change(const Row& r);
     void fill_table(const Row& r);
     void setup_table_row(const Row& header);
     void reset();
     void open(const std::string& filename);
-    void waiting();
+    void setup_log();
+
+    std::ostringstream ss_log;
+
+    template <typename T>
+    void waiting(std::shared_ptr<CsvManager> _csv, long long& file_size, std::future<T>& exec)
+    {
+        spdlog::debug("File size: {}", file_size);
+        QProgressDialog progress("Executing operation...", "Stop", 0, (int)(file_size / 1000000), this);
+        progress.setWindowModality(Qt::WindowModal);
+        while(!progress.wasCanceled() && exec.wait_for(std::chrono::milliseconds(500)) != std::future_status::ready) {
+            progress.setValue((int)(_csv->get_position() / 1000000));
+        }
+        progress.setValue(file_size);
+    }
 };
 #endif // MAINWINDOW_H

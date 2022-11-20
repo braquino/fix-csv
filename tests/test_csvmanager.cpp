@@ -14,17 +14,28 @@ TEST(CsvManager, Field)
 
     Field i{"4567658"};
     ASSERT_EQ(i.stype(), SimpleType::INTEGER);
+
+    Field i2{"\"3\""};
+    ASSERT_EQ(i2.stype(), SimpleType::INTEGER);
+
+    Field e{""};
+    ASSERT_EQ(e.stype(), SimpleType::EMPTY);
+
+    Field n2{"\"245,34\""};
+    ASSERT_EQ(n2.stype(), SimpleType::NUMBER);
 }
 
 TEST(CsvManager, Row)
 {
-    Row r1{"field1,field2,\"fie,ld3\"", ',', '\"', '\n'};
+    Row r1{"field1,f\"ie\"ld2,\"fie,ld3\"", ',', '\"', '\n'};
     ASSERT_EQ(r1.col_count, 3);
-    ASSERT_EQ(r1.char_count, 23);
-    ASSERT_EQ(r1.str, "field1,field2,\"fie,ld3\"");
+    ASSERT_EQ(r1.char_count, 25);
+    ASSERT_EQ(r1.str, "field1,f\"ie\"ld2,\"fie,ld3\"");
     ASSERT_EQ(r1.fields[0].str, "field1");
-    ASSERT_EQ(r1.fields[1].str, "field2");
+    ASSERT_EQ(r1.fields[1].str, "f\"ie\"ld2");
+    ASSERT_TRUE(r1.fields[1].quote_error());
     ASSERT_EQ(r1.fields[2].str, "\"fie,ld3\"");
+    ASSERT_FALSE(r1.fields[2].quote_error());
 }
 
 TEST(CsvManager, getNextRow)
