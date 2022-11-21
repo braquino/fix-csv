@@ -39,8 +39,10 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.ui
         src/csvmanager.cpp
+        src/csvstatistics.cpp
         include/csvmanager.h
         include/mainwindow.h
+        include/csvstatistics.h
 )
 
 qt_add_executable(fix-csv
