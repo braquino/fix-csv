@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "csvmanager.h"
+#include "csvstatistics.h"
 #include <QTableWidgetItem>
 #include <QProgressDialog>
 #include <spdlog/spdlog.h>
@@ -41,6 +42,8 @@ private slots:
 
     void on_btn_save_clicked();
 
+    void on_btn_calc_stats_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<CsvManager> csv;
@@ -51,6 +54,7 @@ private:
     void reset();
     void open(const std::string& filename);
     void setup_log();
+    void fill_statistics(const RowsReport& report);
 
     template <typename T>
     void waiting(std::shared_ptr<CsvManager> _csv, long long& file_size, std::future<T>& exec)

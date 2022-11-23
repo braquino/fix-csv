@@ -240,7 +240,7 @@ void MainWindow::on_btn_save_clicked()
     spdlog::debug("Button save clicked");
     long long file_size = this->csv->get_size();
     std::future<void> file_saver = std::async(
-            [](std::shared_ptr<CsvManager> csv, const std::string& path){csv->save_file(path);},
+            [](std::shared_ptr<CsvManager> _csv, const std::string& path){_csv->save_file(path);},
             this->csv,
             ui->txt_out_filename->text().toStdString()
     );
@@ -254,5 +254,57 @@ void MainWindow::on_btn_save_clicked()
     {
         spdlog::error("Error trying to save file: {}", e.what());
     }
+}
+
+void MainWindow::fill_statistics(const RowsReport& report)
+{
+    ui->txt_rows_count->setText(QString::number(report.row_count));
+    ui->txt_fc1->setText(QString::number(report.field_count_first));
+    ui->txt_p_fc1->setText(QString::number(report.perc_field_count_first));
+    ui->txt_fc2->setText(QString::number(report.field_count_second));
+    ui->txt_p_fc2->setText(QString::number(report.perc_field_count_second));
+    ui->txt_fc3->setText(QString::number(report.field_count_third));
+    ui->txt_p_fc3->setText(QString::number(report.perc_field_count_third));
+}
+
+void MainWindow::on_btn_calc_stats_clicked()
+{
+    spdlog::debug("Button calculate stats clicked");
+    QString sep = ui->txt_separator->text();
+    QString quote = ui->txt_quote->text();
+    if (!ui->txt_filename->text().isEmpty() && sep.size() == 1 && quote.size() == 1)
+    {
+        std::shared_ptr<CsvManager> stats_csv{new CsvManager{}};
+        stats_csv->sep = sep.toStdString()[0];
+        stats_csv->quote = quote.toStdString()[0];
+        stats_csv->open_file(ui->txt_filename->text().toStdString());
+        long long file_size = stats_csv->get_size();
+        std::future<RowsReport> reporter = std::async(
+            [](std::shared_ptr<CsvManager> _csv)
+            {
+                CsvStatistics stats_calc{_csv->next_row()};
+                while (true)
+                {
+                    Row r = _csv->next_row();
+                    if (_csv->eof()) break;
+                    stats_calc.add_row(r);
+                }
+                return stats_calc.get_rows_report();
+            },
+            stats_csv
+        );
+        this->waiting<RowsReport>(stats_csv, file_size,reporter);
+        try
+        {
+            RowsReport report = reporter.get();
+            this->fill_statistics(report);
+        }
+        catch (const std::exception& e)
+        {
+            spdlog::error("Error trying calculate statistics: {}", e.what());
+        }
+    }
+    else
+        spdlog::warn("No file opened, cant calculate statistics");
 }
 

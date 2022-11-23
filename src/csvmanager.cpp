@@ -2,7 +2,7 @@
 #include <sstream>
 #include <fmt/core.h>
 
-CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, row{0}, header_count{0}, size{0}, last_row{""}
+CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, row{0}, header_count{0}, size{0}, last_row{""}, _eof{false}
 {
 
 }
@@ -86,12 +86,14 @@ Row CsvManager::next_row()
     }
     else
     {
+        this->_eof = true;
         return this->curr_row();
     }
 }
 
 Row CsvManager::back_row()
 {
+    this->_eof = false;
     return Row{back_row_str(), sep, quote, newline};
 }
 

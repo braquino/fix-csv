@@ -10,7 +10,7 @@
 #include <filesystem>
 
 enum class SimpleType {
-    EMPTY, STRING, NUMBER, INTEGER
+    EMPTY, STRING, NUMBER, INTEGER, NONE
 };
 
 struct Field {
@@ -53,6 +53,7 @@ public:
     long long get_size() {return size;}
     void save_file(const std::string& out_path);
     void reset();
+    bool eof() { return _eof; }
 
 private:
     int header_count;
@@ -65,6 +66,7 @@ private:
     std::string next_row_str();
     std::string back_row_str();
     Row last_row;
+    bool _eof;
 };
 
 #endif // CSVMANAGER_H
