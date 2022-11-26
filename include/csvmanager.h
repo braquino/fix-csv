@@ -10,18 +10,20 @@
 #include <filesystem>
 
 enum class SimpleType {
-    EMPTY, STRING, NUMBER, INTEGER
+    EMPTY, STRING, NUMBER, INTEGER, NONE
 };
 
 struct Field {
     uint16_t char_count;
     std::string str;
 
-    Field(const std::string& s);
+    Field(const std::string& s, const char& quote = '"');
     std::string hex() const;
     SimpleType stype() const;
     std::string stype_str() const;
-    bool quote_error(const char& quote = '"') const;
+    static std::string stype_to_string(SimpleType t);
+    bool quote_error() const;
+    char quote;
 };
 
 struct Row {
@@ -53,6 +55,7 @@ public:
     long long get_size() {return size;}
     void save_file(const std::string& out_path);
     void reset();
+    bool eof() { return _eof; }
 
 private:
     int header_count;
@@ -65,6 +68,7 @@ private:
     std::string next_row_str();
     std::string back_row_str();
     Row last_row;
+    bool _eof;
 };
 
 #endif // CSVMANAGER_H

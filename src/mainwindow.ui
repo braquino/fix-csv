@@ -88,6 +88,9 @@
       <height>121</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="label_row">
     <property name="geometry">
@@ -188,7 +191,7 @@
    <widget class="QPushButton" name="btn_next_error">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>16</x>
       <y>350</y>
       <width>111</width>
       <height>25</height>
@@ -284,6 +287,17 @@
       <height>241</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>100</number>
+    </attribute>
    </widget>
    <widget class="QPushButton" name="btn_close_file">
     <property name="geometry">
@@ -301,8 +315,8 @@
    <widget class="QPushButton" name="btn_count_rows">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>50</y>
+      <x>1090</x>
+      <y>40</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -369,7 +383,7 @@
      <string>Separator:</string>
     </property>
    </widget>
-   <widget class="QFrame" name="frame">
+   <widget class="QFrame" name="frame_csv">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -414,7 +428,7 @@
    <widget class="QPushButton" name="btn_save_row">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>680</x>
       <y>350</y>
       <width>151</width>
       <height>25</height>
@@ -456,9 +470,9 @@
    <widget class="QPushButton" name="btn_delete_row">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>570</x>
       <y>350</y>
-      <width>81</width>
+      <width>91</width>
       <height>25</height>
      </rect>
     </property>
@@ -466,7 +480,285 @@
      <string>Delete row</string>
     </property>
    </widget>
-   <zorder>frame</zorder>
+   <widget class="QFrame" name="frame_stats">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>80</y>
+      <width>251</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_fc2">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>131</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>num fields 2nd:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_fc1">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>109</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>num fields 1st:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_stat">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>80</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>statistics</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_fc1">
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>107</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_p_fc1">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>107</y>
+      <width>71</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_fc2">
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>130</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_p_fc2">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>130</y>
+      <width>71</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_p_fc3">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>153</y>
+      <width>71</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_fc3">
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>153</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_fc3">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>153</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>num fields 3rd:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_calc_stats">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>182</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Calculate statistics</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_next_error">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>345</y>
+      <width>441</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_err_field_count">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>350</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>field count</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_err_non_print">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>370</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>non print char</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_err_bad_quote">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>350</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>bad quote</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_table_to_row">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>370</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset theme="go-up"/>
+    </property>
+   </widget>
+   <zorder>frame_csv</zorder>
    <zorder>btn_open_file</zorder>
    <zorder>txt_out_filename</zorder>
    <zorder>label_fname</zorder>
@@ -479,7 +771,6 @@
    <zorder>txt_filename</zorder>
    <zorder>txt_rows_count</zorder>
    <zorder>txt_current_row</zorder>
-   <zorder>btn_next_error</zorder>
    <zorder>label_header_count</zorder>
    <zorder>txt_header_count</zorder>
    <zorder>label_cur_fields_count</zorder>
@@ -498,6 +789,24 @@
    <zorder>txt_logs</zorder>
    <zorder>label_logs</zorder>
    <zorder>btn_delete_row</zorder>
+   <zorder>frame_stats</zorder>
+   <zorder>label_fc2</zorder>
+   <zorder>label_fc1</zorder>
+   <zorder>label_stat</zorder>
+   <zorder>txt_fc1</zorder>
+   <zorder>txt_p_fc1</zorder>
+   <zorder>txt_fc2</zorder>
+   <zorder>txt_p_fc2</zorder>
+   <zorder>txt_p_fc3</zorder>
+   <zorder>txt_fc3</zorder>
+   <zorder>label_fc3</zorder>
+   <zorder>btn_calc_stats</zorder>
+   <zorder>frame_next_error</zorder>
+   <zorder>btn_next_error</zorder>
+   <zorder>cb_err_field_count</zorder>
+   <zorder>cb_err_non_print</zorder>
+   <zorder>cb_err_bad_quote</zorder>
+   <zorder>btn_table_to_row</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.2, 2022-11-20T12:47:40. -->
+<!-- Written by QtCreator 8.0.2, 2022-11-25T00:57:22. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -76,6 +76,9 @@
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:getNextRow">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:getRowsCount">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:saveReplacedreplaceRow">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvstatistics.cpp:Counter">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvstatistics.cpp:CsvStatistics">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvstatistics.cpp:FieldStatistic">Checked</value>
    </valuemap>
    <value type="int" key="AutoTest.RunAfterBuild">0</value>
    <value type="bool" key="AutoTest.UseGlobal">true</value>

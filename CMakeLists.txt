@@ -39,8 +39,10 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.ui
         src/csvmanager.cpp
+        src/csvstatistics.cpp
         include/csvmanager.h
         include/mainwindow.h
+        include/csvstatistics.h
 )
 
 qt_add_executable(fix-csv
@@ -75,11 +77,16 @@ qt_finalize_executable(fix-csv)
 
 set(TEST_FILES
   tests/test_csvmanager.cpp
+  tests/test_csvstatistics.cpp
+  include/csvmanager.h
+  include/csvstatistics.h
+  src/csvmanager.cpp
+  src/csvstatistics.cpp
 )
 
 enable_testing()
 
-add_executable(test-fix-csv ${TEST_FILES} include/csvmanager.h src/csvmanager.cpp)
+add_executable(test-fix-csv ${TEST_FILES})
 target_link_libraries(test-fix-csv spdlog::spdlog fmt GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(test-fix-csv)
