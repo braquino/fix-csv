@@ -4,6 +4,7 @@
 #include <QThread>
 #include "spdlog/sinks/stdout_sinks.h"
 #include "qtextlogsink.h"
+#include <fmt/core.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +50,13 @@ void MainWindow::reset()
     ui->table_row->clear();
     ui->table_row->setColumnCount(0);
     ui->table_row->setRowCount(0);
+    ui->txt_rows_count->setText("");
+    ui->txt_fc1->setText("");
+    ui->txt_p_fc1->setText("");
+    ui->txt_fc2->setText("");
+    ui->txt_p_fc2->setText("");
+    ui->txt_fc3->setText("");
+    ui->txt_p_fc3->setText("");
 }
 
 void MainWindow::open(const std::string& filename)
@@ -111,8 +119,9 @@ void MainWindow::row_change(const Row& r)
 void MainWindow::on_btn_back_row_clicked()
 {
     spdlog::debug("Button back clicked");
+    long last_row = csv->curr_row_num();
     Row r = csv->back_row();
-    if (!r.fields.empty())
+    if (csv->curr_row_num() != last_row)
         this->row_change(r);
     else
         spdlog::warn("No row to show");
@@ -122,8 +131,9 @@ void MainWindow::on_btn_back_row_clicked()
 void MainWindow::on_btn_next_row_clicked()
 {
     spdlog::debug("Button next clicked");
+    long last_row = csv->curr_row_num();
     Row r = csv->next_row();
-    if (!r.fields.empty())
+    if (csv->curr_row_num() != last_row)
         this->row_change(r);
     else
         spdlog::warn("No row to show");
@@ -167,14 +177,22 @@ void MainWindow::setup_table_row(const Row& header)
 
 void MainWindow::fill_table(const Row& r) {
     spdlog::debug("Filling table with current row");
-    ui->table_row->clearContents();
+    for (int y=0; y < 4; y++)
+    {
+        for (int x=0; x < ui->table_row->columnCount(); x++)
+        {
+            auto item = ui->table_row->item(y, x);
+            if (item != nullptr)
+                item->setText("");
+        }
+    }
     ui->table_row->setColumnCount(std::max((int)r.col_count, ui->table_row->columnCount()));
     int i = 0;
     for (const Field& f : r.fields)
     {
         ui->table_row->setItem(0, i, new QTableWidgetItem{QString::fromStdString(f.str)});
         ui->table_row->setItem(1, i, new QTableWidgetItem{QString::fromStdString(f.hex())});
-        ui->table_row->setItem(2, i, new QTableWidgetItem{QString::fromStdString(std::to_string(f.char_count))});
+        ui->table_row->setItem(2, i, new QTableWidgetItem{QString::number(f.char_count)});
         ui->table_row->setItem(3, i, new QTableWidgetItem{QString::fromStdString(f.stype_str())});
         i++;
     }
@@ -207,7 +225,6 @@ void MainWindow::on_btn_count_rows_clicked()
     }
 }
 
-
 void MainWindow::on_btn_reopen_clicked()
 {
     spdlog::debug("Button reopen clicked");
@@ -216,7 +233,6 @@ void MainWindow::on_btn_reopen_clicked()
     else
         spdlog::error("Filename is empty, select file first");
 }
-
 
 void MainWindow::on_btn_save_row_clicked()
 {
@@ -233,7 +249,6 @@ void MainWindow::on_btn_save_row_clicked()
         spdlog::error("Error saving row: {}", e.what());
     }
 }
-
 
 void MainWindow::on_btn_save_clicked()
 {
@@ -256,15 +271,39 @@ void MainWindow::on_btn_save_clicked()
     }
 }
 
+QString type_to_q_string(SimpleType t, double p)
+{
+    return QString::fromStdString(fmt::format("{}: {:.2f}%",Field::stype_to_string(t), p * 100));
+}
+
 void MainWindow::fill_statistics(const RowsReport& report)
 {
     ui->txt_rows_count->setText(QString::number(report.row_count));
     ui->txt_fc1->setText(QString::number(report.field_count_first));
-    ui->txt_p_fc1->setText(QString::number(report.perc_field_count_first));
+    ui->txt_p_fc1->setText(QString::asprintf("%.2f%%", report.perc_field_count_first * 100));
     ui->txt_fc2->setText(QString::number(report.field_count_second));
-    ui->txt_p_fc2->setText(QString::number(report.perc_field_count_second));
+    ui->txt_p_fc2->setText(QString::asprintf("%.2f%%", report.perc_field_count_second * 100));
     ui->txt_fc3->setText(QString::number(report.field_count_third));
-    ui->txt_p_fc3->setText(QString::number(report.perc_field_count_third));
+    ui->txt_p_fc3->setText(QString::asprintf("%.2f%%", report.perc_field_count_third * 100));
+
+    ui->table_row->setRowCount(13);
+    ui->table_row->setVerticalHeaderLabels(QStringList{{"string", "hex", "char count", "type",
+                                                       "most type", "2nd type", "3rd type",
+                                                        "char mean", "char median", "char perc 5%", "char perc 25%", "char perc 75%", "char perc 95%"}});
+    int i = 0;
+    for (const FieldReport& fr : report.field_statistic)
+    {
+        ui->table_row->setItem(4, i, new QTableWidgetItem{type_to_q_string(fr.type_first, fr.perc_type_first)});
+        ui->table_row->setItem(5, i, new QTableWidgetItem{(fr.perc_type_second > 0.0) ? type_to_q_string(fr.type_second, fr.perc_type_second) : ""});
+        ui->table_row->setItem(6, i, new QTableWidgetItem{(fr.perc_type_second > 0.0) ? type_to_q_string(fr.type_third, fr.perc_type_third) : ""});
+        ui->table_row->setItem(7, i, new QTableWidgetItem{QString::number(fr.char_count_mean)});
+        ui->table_row->setItem(8, i, new QTableWidgetItem{QString::number(fr.char_count_p_50)});
+        ui->table_row->setItem(9, i, new QTableWidgetItem{QString::number(fr.char_count_p_05)});
+        ui->table_row->setItem(10, i, new QTableWidgetItem{QString::number(fr.char_count_p_25)});
+        ui->table_row->setItem(11, i, new QTableWidgetItem{QString::number(fr.char_count_p_75)});
+        ui->table_row->setItem(12, i, new QTableWidgetItem{QString::number(fr.char_count_p_95)});
+        i++;
+    }
 }
 
 void MainWindow::on_btn_calc_stats_clicked()
@@ -306,5 +345,37 @@ void MainWindow::on_btn_calc_stats_clicked()
     }
     else
         spdlog::warn("No file opened, cant calculate statistics");
+}
+
+
+void MainWindow::on_btn_table_to_row_clicked()
+{
+    spdlog::debug("Table to row button clicked");
+    try
+    {
+        QString sep = ui->txt_separator->text();
+        if (sep.size() == 1 && ui->txt_header_count->text().size() > 0)
+        {
+            char sep_c = sep.toStdString()[0];
+            std::ostringstream ss;
+            int num_cols = ui->txt_header_count->text().toInt();
+            for (int i = 0; i < num_cols; i++)
+            {
+                auto item = ui->table_row->item(0, i);
+                if (item != nullptr)
+                    ss << item->text().toStdString();
+                ss << ((i < num_cols - 1) ? sep_c : '\n');
+            }
+            spdlog::debug("Moving row from table to raw row");
+            ui->txt_raw_row->setText(QString::fromStdString(ss.str()));
+        }
+        else
+            spdlog::error("Separator cannot be empty and file must be opened");
+    }
+    catch (const std::exception& e)
+    {
+        spdlog::error("Error trying to compose raw row from table: {}", e.what());
+    }
+
 }
 

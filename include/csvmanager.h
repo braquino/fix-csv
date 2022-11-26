@@ -17,11 +17,13 @@ struct Field {
     uint16_t char_count;
     std::string str;
 
-    Field(const std::string& s);
+    Field(const std::string& s, const char& quote = '"');
     std::string hex() const;
     SimpleType stype() const;
     std::string stype_str() const;
-    bool quote_error(const char& quote = '"') const;
+    static std::string stype_to_string(SimpleType t);
+    bool quote_error() const;
+    char quote;
 };
 
 struct Row {

@@ -88,6 +88,9 @@
       <height>121</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="label_row">
     <property name="geometry">
@@ -284,6 +287,17 @@
       <height>241</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>100</number>
+    </attribute>
    </widget>
    <widget class="QPushButton" name="btn_close_file">
     <property name="geometry">
@@ -414,7 +428,7 @@
    <widget class="QPushButton" name="btn_save_row">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>680</x>
       <y>350</y>
       <width>151</width>
       <height>25</height>
@@ -456,9 +470,9 @@
    <widget class="QPushButton" name="btn_delete_row">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>570</x>
       <y>350</y>
-      <width>81</width>
+      <width>91</width>
       <height>25</height>
      </rect>
     </property>
@@ -469,9 +483,9 @@
    <widget class="QFrame" name="frame_stats">
     <property name="geometry">
      <rect>
-      <x>970</x>
+      <x>930</x>
       <y>80</y>
-      <width>211</width>
+      <width>251</width>
       <height>131</height>
      </rect>
     </property>
@@ -485,33 +499,33 @@
    <widget class="QLabel" name="label_fc2">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>940</x>
       <y>131</y>
-      <width>91</width>
+      <width>111</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>field count 2:</string>
+     <string>num fields 2nd:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_fc1">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>940</x>
       <y>109</y>
-      <width>91</width>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>field count 1:</string>
+     <string>num fields 1st:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_stat">
     <property name="geometry">
      <rect>
-      <x>975</x>
+      <x>940</x>
       <y>80</y>
       <width>71</width>
       <height>20</height>
@@ -524,7 +538,7 @@
    <widget class="QLabel" name="txt_fc1">
     <property name="geometry">
      <rect>
-      <x>1080</x>
+      <x>1050</x>
       <y>107</y>
       <width>41</width>
       <height>25</height>
@@ -543,9 +557,9 @@
    <widget class="QLabel" name="txt_p_fc1">
     <property name="geometry">
      <rect>
-      <x>1130</x>
+      <x>1100</x>
       <y>107</y>
-      <width>41</width>
+      <width>71</width>
       <height>25</height>
      </rect>
     </property>
@@ -558,11 +572,14 @@
     <property name="text">
      <string/>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="txt_fc2">
     <property name="geometry">
      <rect>
-      <x>1080</x>
+      <x>1050</x>
       <y>130</y>
       <width>41</width>
       <height>25</height>
@@ -581,9 +598,9 @@
    <widget class="QLabel" name="txt_p_fc2">
     <property name="geometry">
      <rect>
-      <x>1130</x>
+      <x>1100</x>
       <y>130</y>
-      <width>41</width>
+      <width>71</width>
       <height>25</height>
      </rect>
     </property>
@@ -595,14 +612,17 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="txt_p_fc3">
     <property name="geometry">
      <rect>
-      <x>1130</x>
+      <x>1100</x>
       <y>153</y>
-      <width>41</width>
+      <width>71</width>
       <height>25</height>
      </rect>
     </property>
@@ -615,11 +635,14 @@
     <property name="text">
      <string/>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="txt_fc3">
     <property name="geometry">
      <rect>
-      <x>1080</x>
+      <x>1050</x>
       <y>153</y>
       <width>41</width>
       <height>25</height>
@@ -638,14 +661,14 @@
    <widget class="QLabel" name="label_fc3">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>940</x>
       <y>153</y>
-      <width>91</width>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>field count 3:</string>
+     <string>num fields 3rd:</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_calc_stats">
@@ -719,6 +742,22 @@
      <string>bad quote</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_table_to_row">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>370</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset theme="go-up"/>
+    </property>
+   </widget>
    <zorder>frame_csv</zorder>
    <zorder>btn_open_file</zorder>
    <zorder>txt_out_filename</zorder>
@@ -767,6 +806,7 @@
    <zorder>cb_err_field_count</zorder>
    <zorder>cb_err_non_print</zorder>
    <zorder>cb_err_bad_quote</zorder>
+   <zorder>btn_table_to_row</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

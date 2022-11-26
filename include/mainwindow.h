@@ -44,6 +44,8 @@ private slots:
 
     void on_btn_calc_stats_clicked();
 
+    void on_btn_table_to_row_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<CsvManager> csv;

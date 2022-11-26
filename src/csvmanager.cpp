@@ -166,10 +166,9 @@ void CsvManager::save_file(const std::string& out_path)
     out_f.close();
 }
 
-Field::Field(const std::string& s)
+Field::Field(const std::string& s, const char& quote) : char_count{(uint16_t)s.size()}, str{s}, quote{quote}
 {
-    str = s;
-    char_count = s.size();
+
 }
 
 std::string Field::hex() const
@@ -182,24 +181,42 @@ std::string Field::hex() const
     return ss.str();
 }
 
+SimpleType is_number(const std::string& s, char quote)
+{
+    int skip_quote = (s[0] == quote && s[s.size() - 1] == quote) ? 1 : 0;
+    int dec = 0;
+    for (int i = skip_quote; i < s.size() - skip_quote; i++)
+    {
+        uint8_t c = s[i];
+        if (c == 0x2c || c == 0x2e) dec++;
+        if (c > 0x39 || c < 0x2c || dec > 1 || c == 0x2d || c == 0x2f) return SimpleType::NONE;
+    }
+    if (dec == 1) return SimpleType::NUMBER;
+    else return SimpleType::INTEGER;
+}
+
 SimpleType Field::stype() const
 {
     if (str.size() == 0) return SimpleType::EMPTY;
-    if (std::regex_match(str, std::regex("^\"?[0-9]*\"?$"))) return SimpleType::INTEGER;
-    if (std::regex_match(str, std::regex("^\"?([0-9]|[.]|,)*\"?$"))) return SimpleType::NUMBER;
-    else return SimpleType::STRING;
+    SimpleType test_num = is_number(this->str, this->quote);
+    if (test_num != SimpleType::NONE) return test_num;
+    return SimpleType::STRING;
 }
 
-std::string Field::stype_str() const
+std::string Field::stype_to_string(SimpleType t)
 {
-    SimpleType t = this->stype();
     if (t == SimpleType::INTEGER) return "Integer";
     if (t == SimpleType::NUMBER) return "Number";
     if (t == SimpleType::EMPTY) return "Empty";
     else return "String";
 }
 
-bool Field::quote_error(const char& quote) const
+std::string Field::stype_str() const
+{
+    return this->stype_to_string(this->stype());
+}
+
+bool Field::quote_error() const
 {
     bool err = false;
     int count_quote = 0;
@@ -241,7 +258,7 @@ Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, cha
         else
         {
             ss_f << c;
-            if (i + 1 == s.size()) fields.push_back(Field{ss_f.str()});
+            if (i + 1 == s.size()) fields.push_back(Field{ss_f.str(), quote});
         }
     }
     col_count = fields.size();
