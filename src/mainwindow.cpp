@@ -6,6 +6,15 @@
 #include "qtextlogsink.h"
 #include <fmt/core.h>
 
+QStringList all_types()
+{
+    QStringList types;
+    SimpleType stypes[] = {SimpleType::STRING, SimpleType::INTEGER, SimpleType::NUMBER, SimpleType::EMPTY};
+    for (auto t : stypes)
+        types.push_back(QString::fromStdString(Field::stype_to_string(t)));
+    return types;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -13,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setup_log();
+    ui->comb_err_type->addItems(all_types());
 }
 
 MainWindow::~MainWindow()
@@ -144,16 +154,29 @@ void MainWindow::on_btn_next_error_clicked()
 {
     spdlog::debug("Button next error clicked");
     long long file_size = this->csv->get_size();
+
     std::future<Row> get_next_error = std::async(
-            [](std::shared_ptr<CsvManager> csv){return csv->next_error();},
-            this->csv
+            [](std::shared_ptr<CsvManager> csv, bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
+                {
+                    return csv->next_error(field_count, bad_quote, unprint_char, fld_t_idx, fld_t);
+                },
+            this->csv,
+            ui->cb_err_field_count->checkState(),
+            ui->cb_err_bad_quote->checkState(),
+            ui->cb_err_non_print->checkState(),
+            (ui->cb_err_type->checkState()) ? ui->txt_err_type->text().toInt() : -1,
+            (ui->cb_err_type->checkState()) ? Field::string_to_stype(ui->comb_err_type->currentText().toStdString()) : SimpleType::NONE
     );
     this->waiting<Row>(this->csv, file_size, get_next_error);
     try
     {
         Row r = get_next_error.get();
         if (!r.fields.empty())
+        {
             this->row_change(r);
+            for (const std::string& err : r.error_state)
+                spdlog::info("csv error found row {} => {}", this->csv->curr_row_num(), err);
+        }
         else
             spdlog::warn("No more rows to show");
     }
@@ -169,10 +192,12 @@ void MainWindow::setup_table_row(const Row& header)
     ui->table_row->setColumnCount(header.col_count);
     ui->table_row->setRowCount(4);
     ui->table_row->setVerticalHeaderLabels(QStringList{{"string", "hex", "char count", "type"}});
-    QStringList h_header;
-    for (const Field& f : header.fields)
-        h_header.push_back(QString::fromStdString(f.str));
-    ui->table_row->setHorizontalHeaderLabels(h_header);
+    for (int i = 0; i < header.fields.size(); i++)
+    {
+        auto h = new QTableWidgetItem(QString::asprintf("%d: %s", i, header.fields[i].str.c_str()));
+        h->setTextAlignment(Qt::AlignLeft);
+        ui->table_row->setHorizontalHeaderItem(i, h);
+    }
 }
 
 void MainWindow::fill_table(const Row& r) {

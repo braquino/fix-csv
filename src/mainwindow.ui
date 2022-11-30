@@ -409,7 +409,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Apply</string>
+     <string>Reset File</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_save">
@@ -428,7 +428,7 @@
    <widget class="QPushButton" name="btn_save_row">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>740</x>
       <y>350</y>
       <width>151</width>
       <height>25</height>
@@ -470,7 +470,7 @@
    <widget class="QPushButton" name="btn_delete_row">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>630</x>
       <y>350</y>
       <width>91</width>
       <height>25</height>
@@ -689,7 +689,7 @@
      <rect>
       <x>10</x>
       <y>345</y>
-      <width>441</width>
+      <width>541</width>
       <height>51</height>
      </rect>
     </property>
@@ -703,7 +703,7 @@
    <widget class="QCheckBox" name="cb_err_field_count">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>140</x>
       <y>350</y>
       <width>92</width>
       <height>23</height>
@@ -719,7 +719,7 @@
    <widget class="QCheckBox" name="cb_err_non_print">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>140</x>
       <y>370</y>
       <width>121</width>
       <height>23</height>
@@ -732,7 +732,7 @@
    <widget class="QCheckBox" name="cb_err_bad_quote">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>280</x>
       <y>350</y>
       <width>92</width>
       <height>23</height>
@@ -745,7 +745,7 @@
    <widget class="QPushButton" name="btn_table_to_row">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>570</x>
       <y>370</y>
       <width>41</width>
       <height>25</height>
@@ -755,7 +755,50 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset theme="go-up"/>
+     <iconset theme="go-up">
+      <normaloff>.</normaloff>.</iconset>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_err_type">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>370</y>
+      <width>201</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>fld #:                   type:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txt_err_type">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>372</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+    <property name="maxLength">
+     <number>5</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comb_err_type">
+    <property name="geometry">
+     <rect>
+      <x>441</x>
+      <y>371</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
     </property>
    </widget>
    <zorder>frame_csv</zorder>
@@ -807,6 +850,9 @@
    <zorder>cb_err_non_print</zorder>
    <zorder>cb_err_bad_quote</zorder>
    <zorder>btn_table_to_row</zorder>
+   <zorder>cb_err_type</zorder>
+   <zorder>txt_err_type</zorder>
+   <zorder>comb_err_type</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

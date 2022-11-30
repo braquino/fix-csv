@@ -97,15 +97,26 @@ Row CsvManager::back_row()
     return Row{back_row_str(), sep, quote, newline};
 }
 
-Row CsvManager::next_error()
+Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
 {
     if (this->row == 0) this->next_row();
     long _lrow = this->row;
     while(true)
     {
         Row r = this->next_row();
-        if (this->row == _lrow) return r;
-        if (r.col_count != this->header_count || r.error_state) return r;
+        if (this->row == _lrow)
+            return r;
+        if (field_count)
+            r.field_count_error(this->header_count);
+        if (bad_quote)
+            r.quote_error();
+        if (unprint_char)
+            r.non_print_char_error();
+        if (fld_t_idx > -1)
+            r.check_field_type(fld_t_idx, fld_t);
+        if (!r.error_state.empty())
+            return r;
+
         _lrow = this->row;
     }
 }
@@ -176,9 +187,21 @@ std::string Field::hex() const
     std::stringstream ss;
     for (int i=0; i < str.size(); i++)
     {
-        ss << fmt::format("{:x} ", (unsigned char)str[i]);
+        ss << fmt::format("{:02x} ", (unsigned char)str[i]);
     }
     return ss.str();
+}
+
+std::vector<unsigned char> Field::non_print_char() const
+{
+    std::vector<unsigned char> result;
+    for (int i=0; i < str.size(); i++)
+    {
+        unsigned char c = this->str[i];
+        if (c < 0x20 && c != 0x10 && c != 0x0d)
+            result.push_back(c);
+    }
+    return result;
 }
 
 SimpleType is_number(const std::string& s, char quote)
@@ -208,7 +231,21 @@ std::string Field::stype_to_string(SimpleType t)
     if (t == SimpleType::INTEGER) return "Integer";
     if (t == SimpleType::NUMBER) return "Number";
     if (t == SimpleType::EMPTY) return "Empty";
-    else return "String";
+    if (t == SimpleType::STRING) return "String";
+    else return "None";
+}
+
+SimpleType Field::string_to_stype(const std::string& type)
+{
+    std::stringstream ss;
+    for (auto c : type)
+        ss << (char)std::tolower(c);
+    std::string t = ss.str();
+    if (t == "integer") return SimpleType::INTEGER;
+    if (t == "number") return SimpleType::NUMBER;
+    if (t == "empty") return SimpleType::EMPTY;
+    if (t == "string") return SimpleType::STRING;
+    else return SimpleType::NONE;
 }
 
 std::string Field::stype_str() const
@@ -240,8 +277,6 @@ bool Field::quote_error() const
 
 Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, char_count{(uint32_t)s.size()}
 {
-    error_state = false;
-    // TODO: Add error state true when an escape char is found oddly in the midle of the string
     std::stringstream ss_f;
     bool esc = false;
     char c;
@@ -262,4 +297,58 @@ Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, cha
         }
     }
     col_count = fields.size();
+}
+
+bool Row::quote_error()
+{
+    int i = 0;
+    for (const Field& f : this->fields)
+    {
+        if (f.quote_error())
+        {
+            this->error_state.push_back(fmt::format("QUOTE_ERROR: field {}, string: {}", i, f.str));
+        }
+        i++;
+    }
+    return (!this->error_state.empty());
+}
+
+bool Row::field_count_error(uint16_t header_count)
+{
+    if (this->col_count != header_count)
+    {
+        this->error_state.push_back(fmt::format("FIELD_COUNT_ERROR: this row has {} fields and header {} fields", this->col_count, header_count));
+        return true;
+    }
+    return (!this->error_state.empty());
+}
+
+bool Row::non_print_char_error()
+{
+    int i = 0;
+    for (const Field& f : this->fields)
+    {
+        auto unprint_chars = f.non_print_char();
+        if (!unprint_chars.empty())
+        {
+            std::ostringstream ss;
+            ss << "NON_PRINTABLE_CHAR_ERROR: on field "<< i << " the following chars are non printable:";
+            for (auto c : unprint_chars)
+                ss << fmt::format(" 0x{:02x}", c);
+            this->error_state.push_back(ss.str());
+        }
+        i++;
+    }
+    return (!this->error_state.empty());
+}
+
+bool Row::check_field_type(int field_idx, SimpleType t)
+{
+    if (this->fields.size() > field_idx && this->fields[field_idx].stype() == t)
+    {
+        this->error_state.push_back(fmt::format("TYPE_FOUND: {} on field index {}", Field::stype_to_string(t), field_idx));
+        return true;
+    }
+    else
+        return false;
 }

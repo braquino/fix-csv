@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.2, 2022-11-25T00:57:22. -->
+<!-- Written by QtCreator 8.0.2, 2022-11-29T20:53:53. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -70,7 +70,9 @@
    <valuemap type="QVariantMap" key="AutoTest.CheckStates">
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:CsvManager">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:Field">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:FieldErrors">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:Row">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:RowError">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:countRows">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:getNextError">Checked</value>
     <value type="Qt::CheckState" key="1@/home/braquino/repos/fix-csv/tests/test_csvmanager.cpp:getNextRow">Checked</value>
