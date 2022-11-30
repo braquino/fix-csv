@@ -22,7 +22,9 @@ struct Field {
     SimpleType stype() const;
     std::string stype_str() const;
     static std::string stype_to_string(SimpleType t);
+    static SimpleType string_to_stype(const std::string& type);
     bool quote_error() const;
+    std::vector<unsigned char> non_print_char() const;
     char quote;
 };
 
@@ -31,9 +33,13 @@ struct Row {
     uint16_t col_count;
     std::string str;
     std::vector<Field> fields;
-    bool error_state;
+    std::vector<std::string> error_state;
 
     Row(const std::string& s, char sep = ',', char quote = '"', char newline = '\n');
+    bool quote_error();
+    bool field_count_error(uint16_t header_count);
+    bool non_print_char_error();
+    bool check_field_type(int field_idx, SimpleType t);
 };
 
 class CsvManager
@@ -48,7 +54,7 @@ public:
     Row next_row();
     Row back_row();
     Row curr_row() {return last_row;}
-    Row next_error();
+    Row next_error(bool field_count = true, bool bad_quote = false, bool unprint_char = false, int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE);
     void replace_row(long row_number, const std::string& content);
     long count_rows();
     long long get_position();

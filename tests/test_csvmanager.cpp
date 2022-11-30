@@ -23,6 +23,27 @@ TEST(CsvManager, Field)
 
     Field n2{"\"245,34\""};
     ASSERT_EQ(n2.stype(), SimpleType::NUMBER);
+
+    ASSERT_EQ(Field::string_to_stype("string"), SimpleType::STRING);
+    ASSERT_EQ(Field::string_to_stype("strIng"), SimpleType::STRING);
+    ASSERT_EQ(Field::string_to_stype("NONE"), SimpleType::NONE);
+    ASSERT_EQ(Field::string_to_stype("INteger"), SimpleType::INTEGER);
+}
+
+TEST(CsvManager, FieldErrors)
+{
+    Field s{"fiel\"d1"};
+    ASSERT_TRUE(s.quote_error());
+    ASSERT_TRUE(s.non_print_char().empty());
+
+    Field f{"fiel\x12" "dx"};
+    EXPECT_EQ(f.non_print_char().size(), 1);
+    ASSERT_EQ(f.non_print_char()[0], 0x12);
+
+    Field f2{"\x01" "fiel" "\x12" "dx"};
+    EXPECT_EQ(f2.non_print_char().size(), 2);
+    ASSERT_EQ(f2.non_print_char()[0], 0x01);
+    ASSERT_EQ(f2.non_print_char()[1], 0x12);
 }
 
 TEST(CsvManager, Row)
@@ -36,6 +57,33 @@ TEST(CsvManager, Row)
     ASSERT_TRUE(r1.fields[1].quote_error());
     ASSERT_EQ(r1.fields[2].str, "\"fie,ld3\"");
     ASSERT_FALSE(r1.fields[2].quote_error());
+}
+
+TEST(CsvManager, RowError)
+{
+    Row r1{"fi" "\x09" "eld1,f\"ie\"ld2,\"fie,l" "\x02" "d3\"", ',', '\"', '\n'};
+    ASSERT_TRUE(r1.field_count_error(4));
+    ASSERT_TRUE(r1.non_print_char_error());
+    ASSERT_TRUE(r1.quote_error());
+    EXPECT_EQ(r1.error_state.size(), 4);
+    ASSERT_EQ(r1.error_state[0], "FIELD_COUNT_ERROR: this row has 3 fields and header 4 fields");
+    ASSERT_EQ(r1.error_state[1], "NON_PRINTABLE_CHAR_ERROR: on field 0 the following chars are non printable: 0x09");
+    ASSERT_EQ(r1.error_state[2], "NON_PRINTABLE_CHAR_ERROR: on field 2 the following chars are non printable: 0x02");
+    ASSERT_EQ(r1.error_state[3], "QUOTE_ERROR: field 1, string: f\"ie\"ld2");
+    ASSERT_FALSE(r1.check_field_type(1, SimpleType::INTEGER));
+    ASSERT_TRUE(r1.check_field_type(1, SimpleType::STRING));
+
+    Row r2{"abd,,456.4"};
+    ASSERT_TRUE(r2.check_field_type(1, SimpleType::EMPTY));
+    ASSERT_FALSE(r2.check_field_type(1, SimpleType::INTEGER));
+    EXPECT_EQ(r2.error_state.size(), 1);
+    ASSERT_EQ(r2.error_state[0], "TYPE_FOUND: Empty on field index 1");
+
+    Row r3{"abd,,456.4"};
+    ASSERT_TRUE(r3.check_field_type(2, SimpleType::NUMBER));
+    ASSERT_FALSE(r3.check_field_type(2, SimpleType::INTEGER));
+    EXPECT_EQ(r3.error_state.size(), 1);
+    ASSERT_EQ(r3.error_state[0], "TYPE_FOUND: Number on field index 2");
 }
 
 TEST(CsvManager, getNextRow)
