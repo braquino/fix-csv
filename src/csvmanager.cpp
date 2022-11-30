@@ -208,7 +208,8 @@ SimpleType is_number(const std::string& s, char quote)
 {
     int skip_quote = (s[0] == quote && s[s.size() - 1] == quote) ? 1 : 0;
     int dec = 0;
-    for (int i = skip_quote; i < s.size() - skip_quote; i++)
+    int sign = (s[skip_quote] == 0x2b || s[skip_quote] == 0x2d);
+    for (int i = sign + skip_quote; i < s.size() - skip_quote; i++)
     {
         uint8_t c = s[i];
         if (c == 0x2c || c == 0x2e) dec++;
