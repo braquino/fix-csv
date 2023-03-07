@@ -10,68 +10,53 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_TOOLCHAIN_FILE "/home/braquino/vcpkg/scripts/buildsystems/vcpkg.cmake")
-message("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-
-include(FetchContent)
-
-FetchContent_Declare(
-  spdlog
-  URL "https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz"
-)
-FetchContent_Declare(
-  fmt
-  URL "https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz"
-)
-FetchContent_Declare(
-  googletest
-  URL "https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz"
-)
-FetchContent_MakeAvailable(spdlog fmt googletest)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+find_package(GTest)
 
 include_directories(include)
 
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.ui
-        src/csvmanager.cpp
-        src/csvstatistics.cpp
-        include/csvmanager.h
-        include/mainwindow.h
-        include/csvstatistics.h
+  src/main.cpp
+  src/mainwindow.cpp
+  src/mainwindow.ui
+  src/csvmanager.cpp
+  src/csvstatistics.cpp
+  include/csvmanager.h
+  include/mainwindow.h
+  include/csvstatistics.h
 )
 
 qt_add_executable(fix-csv
-    MANUAL_FINALIZATION
-    ${PROJECT_SOURCES}
+  MANUAL_FINALIZATION
+  ${PROJECT_SOURCES}
 )
 
-target_link_libraries(fix-csv PRIVATE Qt${QT_VERSION_MAJOR}::Widgets spdlog::spdlog fmt)
+target_link_libraries(fix-csv PRIVATE Qt6::Widgets spdlog::spdlog fmt::fmt)
 
 set_target_properties(fix-csv PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+  MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+  MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+  MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  MACOSX_BUNDLE TRUE
+  WIN32_EXECUTABLE TRUE
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  message("-- CMake is doing release stuffs")
+  message("-> Release mode")
   add_compile_options(-O3)
   target_compile_definitions(fix-csv PRIVATE DEBUG=0)
 else()
-  message("-- CMake is doing debbug stuffs")
+  message("-> Debug mode")
   target_compile_definitions(fix-csv PRIVATE DEBUG=1)
 endif()
 
 install(TARGETS fix-csv
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  BUNDLE DESTINATION .
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 qt_finalize_executable(fix-csv)
 
@@ -87,6 +72,6 @@ set(TEST_FILES
 enable_testing()
 
 add_executable(test-fix-csv ${TEST_FILES})
-target_link_libraries(test-fix-csv spdlog::spdlog fmt GTest::gtest_main)
+target_link_libraries(test-fix-csv spdlog::spdlog fmt::fmt GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(test-fix-csv)
