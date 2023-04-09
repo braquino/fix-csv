@@ -359,7 +359,7 @@ void MainWindow::on_btn_calc_stats_clicked()
         this->waiting<RowsReport>(stats_csv, file_size,reporter);
         try
         {
-            const RowsReport report = reporter.get();
+            RowsReport report = reporter.get();
             this->fill_statistics(std::move(report));
         }
         catch (const std::exception& e)
