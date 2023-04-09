@@ -1,16 +1,15 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "qtextlogsink.h"
+#include "spdlog/sinks/stdout_sinks.h"
 #include <QFileDialog>
 #include <QThread>
-#include "spdlog/sinks/stdout_sinks.h"
-#include "qtextlogsink.h"
 #include <fmt/core.h>
 
 QStringList all_types()
 {
     QStringList types;
-    SimpleType stypes[] = {SimpleType::STRING, SimpleType::INTEGER, SimpleType::NUMBER, SimpleType::EMPTY};
-    for (auto t : stypes)
+    for (auto t : {SimpleType::STRING, SimpleType::INTEGER, SimpleType::NUMBER, SimpleType::EMPTY})
         types.push_back(QString::fromStdString(Field::stype_to_string(t)));
     return types;
 }
@@ -71,8 +70,8 @@ void MainWindow::reset()
 
 void MainWindow::open(const std::string& filename)
 {
-    QString sep = ui->txt_separator->text();
-    QString quote = ui->txt_quote->text();
+    const QString sep = ui->txt_separator->text();
+    const QString quote = ui->txt_quote->text();
     if (sep.size() == 1 && quote.size() == 1)
     {
         try
@@ -83,7 +82,7 @@ void MainWindow::open(const std::string& filename)
             this->csv->sep = sep.toStdString()[0];
             this->csv->quote = quote.toStdString()[0];
             this->csv->open_file(filename);
-            Row header = csv->next_row();
+            const Row header = csv->next_row();
             this->row_change(header);
         }
         catch (const std::exception& e)
@@ -108,7 +107,7 @@ void MainWindow::row_change(const Row& r)
 {
     spdlog::debug("Row received: " + r.str);
     ui->txt_raw_row->setText(QString::fromStdString(r.str));
-    long r_num = this->csv->curr_row_num();
+    const int64_t r_num = this->csv->curr_row_num();
     ui->txt_current_row->setText(QString::fromStdString(std::to_string(r_num)));
     if (r_num == 1)
     {
@@ -129,8 +128,8 @@ void MainWindow::row_change(const Row& r)
 void MainWindow::on_btn_back_row_clicked()
 {
     spdlog::debug("Button back clicked");
-    long last_row = csv->curr_row_num();
-    Row r = csv->back_row();
+    const int64_t last_row = csv->curr_row_num();
+    const Row r = csv->back_row();
     if (csv->curr_row_num() != last_row)
         this->row_change(r);
     else
@@ -141,8 +140,8 @@ void MainWindow::on_btn_back_row_clicked()
 void MainWindow::on_btn_next_row_clicked()
 {
     spdlog::debug("Button next clicked");
-    long last_row = csv->curr_row_num();
-    Row r = csv->next_row();
+    const int64_t last_row = csv->curr_row_num();
+    const Row r = csv->next_row();
     if (csv->curr_row_num() != last_row)
         this->row_change(r);
     else
@@ -153,10 +152,10 @@ void MainWindow::on_btn_next_row_clicked()
 void MainWindow::on_btn_next_error_clicked()
 {
     spdlog::debug("Button next error clicked");
-    long long file_size = this->csv->get_size();
+    int64_t file_size = this->csv->get_size();
 
     std::future<Row> get_next_error = std::async(
-            [](std::shared_ptr<CsvManager> csv, bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
+            [](const std::shared_ptr<CsvManager>& csv, bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
                 {
                     return csv->next_error(field_count, bad_quote, unprint_char, fld_t_idx, fld_t);
                 },
@@ -170,7 +169,7 @@ void MainWindow::on_btn_next_error_clicked()
     this->waiting<Row>(this->csv, file_size, get_next_error);
     try
     {
-        Row r = get_next_error.get();
+        const Row r = get_next_error.get();
         if (!r.fields.empty())
         {
             this->row_change(r);
@@ -194,7 +193,7 @@ void MainWindow::setup_table_row(const Row& header)
     ui->table_row->setVerticalHeaderLabels(QStringList{{"string", "hex", "char count", "type"}});
     for (int i = 0; i < header.fields.size(); i++)
     {
-        auto h = new QTableWidgetItem(QString::asprintf("%d: %s", i, header.fields[i].str.c_str()));
+        auto* h = new QTableWidgetItem(QString::asprintf("%d: %s", i, header.fields[i].str.c_str()));
         h->setTextAlignment(Qt::AlignLeft);
         ui->table_row->setHorizontalHeaderItem(i, h);
     }
@@ -206,7 +205,7 @@ void MainWindow::fill_table(const Row& r) {
     {
         for (int x=0; x < ui->table_row->columnCount(); x++)
         {
-            auto item = ui->table_row->item(y, x);
+            auto *item = ui->table_row->item(y, x);
             if (item != nullptr)
                 item->setText("");
         }
@@ -236,12 +235,12 @@ void MainWindow::on_btn_count_rows_clicked()
     if (!ui->txt_filename->text().isEmpty())
     {
         count_csv->open_file(ui->txt_filename->text().toStdString());
-        long long file_size = csv->get_size();
-        std::future<long> counter = std::async(
-                [](std::shared_ptr<CsvManager> csv){return csv->count_rows();},
+        int64_t file_size = csv->get_size();
+        std::future<int64_t> counter = std::async(
+                [](const std::shared_ptr<CsvManager>& csv){return csv->count_rows();},
                 count_csv
         );
-        this->waiting<long>(count_csv, file_size, counter);
+        this->waiting<int64_t>(count_csv, file_size, counter);
         ui->txt_rows_count->setText(QString::fromStdString(std::to_string(counter.get())));
     }
     else
@@ -264,7 +263,7 @@ void MainWindow::on_btn_save_row_clicked()
     spdlog::debug("Button save row clicked");
     try
     {
-        long row = ui->txt_current_row->text().toLong();
+        int64_t row = ui->txt_current_row->text().toLong();
         std::string str_row = ui->txt_raw_row->toPlainText().toStdString();
         this->csv->replace_row(row, str_row);
         spdlog::info("Row {} saved as: {}", row, str_row);
@@ -278,9 +277,9 @@ void MainWindow::on_btn_save_row_clicked()
 void MainWindow::on_btn_save_clicked()
 {
     spdlog::debug("Button save clicked");
-    long long file_size = this->csv->get_size();
+    int64_t file_size = this->csv->get_size();
     std::future<void> file_saver = std::async(
-            [](std::shared_ptr<CsvManager> _csv, const std::string& path){_csv->save_file(path);},
+            [](const std::shared_ptr<CsvManager>& _csv, const std::string& path){_csv->save_file(path);},
             this->csv,
             ui->txt_out_filename->text().toStdString()
     );
@@ -334,22 +333,22 @@ void MainWindow::fill_statistics(const RowsReport& report)
 void MainWindow::on_btn_calc_stats_clicked()
 {
     spdlog::debug("Button calculate stats clicked");
-    QString sep = ui->txt_separator->text();
-    QString quote = ui->txt_quote->text();
+    const QString sep = ui->txt_separator->text();
+    const QString quote = ui->txt_quote->text();
     if (!ui->txt_filename->text().isEmpty() && sep.size() == 1 && quote.size() == 1)
     {
         std::shared_ptr<CsvManager> stats_csv{new CsvManager{}};
         stats_csv->sep = sep.toStdString()[0];
         stats_csv->quote = quote.toStdString()[0];
         stats_csv->open_file(ui->txt_filename->text().toStdString());
-        long long file_size = stats_csv->get_size();
+        int64_t file_size = stats_csv->get_size();
         std::future<RowsReport> reporter = std::async(
-            [](std::shared_ptr<CsvManager> _csv)
+            [](const std::shared_ptr<CsvManager>& _csv)
             {
                 CsvStatistics stats_calc{_csv->next_row()};
                 while (true)
                 {
-                    Row r = _csv->next_row();
+                    const Row r = _csv->next_row();
                     if (_csv->eof()) break;
                     stats_calc.add_row(r);
                 }
@@ -360,8 +359,8 @@ void MainWindow::on_btn_calc_stats_clicked()
         this->waiting<RowsReport>(stats_csv, file_size,reporter);
         try
         {
-            RowsReport report = reporter.get();
-            this->fill_statistics(report);
+            const RowsReport report = reporter.get();
+            this->fill_statistics(std::move(report));
         }
         catch (const std::exception& e)
         {
@@ -378,15 +377,15 @@ void MainWindow::on_btn_table_to_row_clicked()
     spdlog::debug("Table to row button clicked");
     try
     {
-        QString sep = ui->txt_separator->text();
+        const QString sep = ui->txt_separator->text();
         if (sep.size() == 1 && ui->txt_header_count->text().size() > 0)
         {
-            char sep_c = sep.toStdString()[0];
+            const char sep_c = sep.toStdString()[0];
             std::ostringstream ss;
-            int num_cols = ui->txt_header_count->text().toInt();
+            const int num_cols = ui->txt_header_count->text().toInt();
             for (int i = 0; i < num_cols; i++)
             {
-                auto item = ui->table_row->item(0, i);
+                auto* item = ui->table_row->item(0, i);
                 if (item != nullptr)
                     ss << item->text().toStdString();
                 ss << ((i < num_cols - 1) ? sep_c : '\n');

@@ -1,15 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "csvmanager.h"
 #include "csvstatistics.h"
-#include <QTableWidgetItem>
+#include <QMainWindow>
 #include <QProgressDialog>
-#include <spdlog/spdlog.h>
-#include <thread>
+#include <QTableWidgetItem>
 #include <future>
+#include <spdlog/spdlog.h>
 #include <sstream>
+#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -59,7 +59,7 @@ private:
     void fill_statistics(const RowsReport& report);
 
     template <typename T>
-    void waiting(std::shared_ptr<CsvManager> _csv, long long& file_size, std::future<T>& exec)
+    void waiting(std::shared_ptr<CsvManager> _csv, int64_t& file_size, std::future<T>& exec)
     {
         spdlog::debug("File size: {}", file_size);
         QProgressDialog progress("Executing operation...", "Stop", 0, (int)(file_size / 1000000), this);
