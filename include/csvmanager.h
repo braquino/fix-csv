@@ -8,6 +8,7 @@
 #include <stack>
 #include <regex>
 #include <filesystem>
+#include <map>
 
 enum class SimpleType {
     EMPTY, STRING, NUMBER, INTEGER, NONE
@@ -57,8 +58,8 @@ public:
     Row curr_row() {return last_row;}
     Row get_header() {return header;}
     Row next_error(bool field_count = true, bool bad_quote = false, bool unprint_char = false, int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE);
-    void replace_row(long row_number, const std::string& content);
-    long count_rows();
+    void replace_row(int64_t row_number, const std::string& content);
+    int64_t count_rows();
     int64_t get_position();
     int64_t get_size() {return size;}
     void save_file(const std::string& out_path);
