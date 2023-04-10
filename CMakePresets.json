@@ -8,6 +8,7 @@
         "CMAKE_MODULE_PATH": "/home/brunoaquino/Qt/6.4.2/gcc_64/cmake",
         "CMAKE_PREFIX_PATH": "/home/brunoaquino/Qt/6.4.2/gcc_64/",
         "CMAKE_TOOLCHAIN_FILE": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_INSTALL_PREFIX": "/usr/local",
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
@@ -18,6 +19,7 @@
         "CMAKE_MODULE_PATH": "/home/brunoaquino/Qt/6.4.2/gcc_64/cmake",
         "CMAKE_PREFIX_PATH": "/home/brunoaquino/Qt/6.4.2/gcc_64/",
         "CMAKE_TOOLCHAIN_FILE": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_INSTALL_PREFIX": "/usr/local",
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
