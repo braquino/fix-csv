@@ -4,45 +4,38 @@ project(fix-csv VERSION 0.1.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(GTest)
 
-include_directories(include)
+include_directories(include imgui)
+
+FILE(GLOB IMGUI_SOURCES
+  imgui/*.cpp
+  imgui/*.h
+  imgui/backend/*.cpp
+  imgui/backend/*.h
+)
 
 set(PROJECT_SOURCES
   src/main.cpp
-  src/mainwindow.cpp
-  src/mainwindow.ui
   src/csvmanager.cpp
   src/csvstatistics.cpp
   include/csvmanager.h
-  include/mainwindow.h
   include/csvstatistics.h
 )
 
-qt_add_executable(fix-csv
-  MANUAL_FINALIZATION
+add_executable(fix-csv
   ${PROJECT_SOURCES}
+  ${IMGUI_SOURCES}
 )
 
-target_link_libraries(fix-csv PRIVATE Qt6::Widgets spdlog::spdlog fmt::fmt)
-
-set_target_properties(fix-csv PROPERTIES
-  MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-  MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-  MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-  MACOSX_BUNDLE TRUE
-  WIN32_EXECUTABLE TRUE
-)
+target_link_libraries(fix-csv PRIVATE OpenGL::GL glfw spdlog::spdlog fmt::fmt)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   message("-> Release mode")
@@ -57,8 +50,6 @@ install(TARGETS fix-csv
   BUNDLE DESTINATION .
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-qt_finalize_executable(fix-csv)
 
 set(TEST_FILES
   tests/test_csvmanager.cpp
