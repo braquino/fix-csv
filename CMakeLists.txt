@@ -28,10 +28,14 @@ set(PROJECT_SOURCES
   src/csvmanager.cpp
   src/csvstatistics.cpp
   src/opengl_glfw_ui.cpp
+  src/uimanager.cpp
+  src/helperui.cpp
   include/csvmanager.h
   include/csvstatistics.h
   include/baseui.h
   include/opengl_glfw_ui.h
+  include/uimanager.h
+  include/helperui.h
 )
 
 add_executable(fix-csv

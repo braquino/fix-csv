@@ -1,29 +1,18 @@
 #include "baseui.h"
+#include "uimanager.h"
 #include "opengl_glfw_ui.h"
-#include "helperui.h"
-#include "tinyfiledialogs/tinyfiledialogs.h"
+#include "spdlog/spdlog.h"
+
 
 int main(int, char**)
-{
+{   
+    spdlog::set_level(spdlog::level::debug);
+
     std::unique_ptr<BaseUI> ui = std::make_unique<OpenglGlfwUI>(1280, 720, "fix-csv");
 
-    char in_filename[512] = "";
-    char out_filename[512] = "";
-    char sep[2] = ",";
-    char quote[2] = "\"";
-    char curr_row[9] = "";
-    char header_count[9] = "";
-    char curr_row_count[9] = "";
-    char raw_row[3000] = "";
+    auto manager = std::make_unique<UiManager>();
 
-    RowStatRank col_rank[] = {
-        {"1st appearance", "84", "20.54%"}, 
-        {"2nd appearance", "85", "5.56%"},
-        {"3rd appearance", "21", "0.2%"}
-    };
-
-    ui->start_loop([&in_filename, &out_filename, &sep, &header_count, &curr_row_count,
-                    &quote, &col_rank, &ui, &curr_row, &raw_row]{
+    ui->start_loop([&ui, &manager]{
         static float f = 0.0f;
         static int counter = 0;
 
@@ -32,18 +21,15 @@ int main(int, char**)
             
             ImGui::SetCursorPos(ImVec2(15,35));
             if (ImGui::Button("Open File", ImVec2(110,20)))
-            {
-                strcat(in_filename, tinyfd_openFileDialog("Open File", NULL, 0, NULL, NULL, 0));
-                strcat(out_filename, in_filename);
-                strncat(out_filename, ".out", strlen(in_filename));
-            }
+                manager->on_click_open_file();
 
             ImGui::SetCursorPos(ImVec2(15,65));
-            ImGui::Button("Close File", ImVec2(110,20));
+            if (ImGui::Button("Close File", ImVec2(110,20)))
+                manager->on_click_close_file();
 
             ImGui::SetCursorPos(ImVec2(230,35));
             ImGui::PushItemWidth(500);
-            ImGui::InputText("##1", in_filename, IM_ARRAYSIZE(in_filename), ImGuiInputTextFlags_ReadOnly);
+            ImGui::InputText("##1", manager->in_filename, IM_ARRAYSIZE(manager->in_filename), ImGuiInputTextFlags_ReadOnly);
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(152,39));
@@ -52,14 +38,15 @@ int main(int, char**)
             ImGui::SetCursorPos(ImVec2(230,64));
             ImGui::PushItemWidth(500);
             
-            ImGui::InputText("##2", out_filename, IM_ARRAYSIZE(out_filename));
+            ImGui::InputText("##2", manager->out_filename, IM_ARRAYSIZE(manager->out_filename));
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(139,68));
             ImGui::Text("Output path:");
 
             ImGui::SetCursorPos(ImVec2(616.5,102));
-            ImGui::Button("Save File", ImVec2(110,20));
+            if (ImGui::Button("Save File", ImVec2(110,20)))
+                manager->on_click_save_file();
 
             ImGui::SetCursorPos(ImVec2(18,104));
             ImGui::Text("Separator:");
@@ -67,7 +54,7 @@ int main(int, char**)
             ImGui::SetCursorPos(ImVec2(93,102));
             ImGui::PushItemWidth(17);
             
-            ImGui::InputText("##3", sep, IM_ARRAYSIZE(sep));
+            ImGui::InputText("##3", manager->sep, IM_ARRAYSIZE(manager->sep));
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(155,104));
@@ -76,11 +63,12 @@ int main(int, char**)
             ImGui::SetCursorPos(ImVec2(245,102));
             ImGui::PushItemWidth(17);
             
-            ImGui::InputText("##4", quote, IM_ARRAYSIZE(quote));
+            ImGui::InputText("##4", manager->quote, IM_ARRAYSIZE(manager->quote));
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(329,102));
-            ImGui::Button("Reset File", ImVec2(110,19));
+            if (ImGui::Button("Reset File", ImVec2(110,19)))
+                manager->on_click_reset_file();
             
             ImGui::End();
         }
@@ -93,15 +81,14 @@ int main(int, char**)
 
             ImGui::SetCursorPos(ImVec2(64,28));
             ImGui::PushItemWidth(131);
-            static char str6[128] = "4345";
-            ImGui::InputText("##5", str6, IM_ARRAYSIZE(str6));
+            ImGui::InputText("##5", manager->num_rows, IM_ARRAYSIZE(manager->num_rows));
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(15,62));
             ImGui::Text("Fields Count:");
 
             for (int i=0; i<3; i++)
-                col_rank[i].render(ImVec2(40, 83 + i * 22));
+                manager->col_rank[i].render(ImVec2(40, 83 + i * 22));
 
             ImGui::End();
         }
@@ -112,25 +99,49 @@ int main(int, char**)
             ImGui::Text("Current Row: ");
             ImGui::SameLine();
             ImGui::PushItemWidth(60);
-            ImGui::InputText("##cr", curr_row, IM_ARRAYSIZE(curr_row),ImGuiInputTextFlags_ReadOnly);
+            ImGui::InputText("##cr", manager->curr_row, IM_ARRAYSIZE(manager->curr_row),ImGuiInputTextFlags_ReadOnly);
             ImGui::PopItemWidth();
             ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
 
             ImGui::Text("Field in Header: ");
             ImGui::SameLine();
             ImGui::PushItemWidth(40);
-            ImGui::InputText("##fih", header_count, IM_ARRAYSIZE(header_count),ImGuiInputTextFlags_ReadOnly);
+            ImGui::InputText("##fih", manager->header_count, IM_ARRAYSIZE(manager->header_count),ImGuiInputTextFlags_ReadOnly);
             ImGui::PopItemWidth();
             ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
 
             ImGui::Text("Fields in this Row: ");
             ImGui::SameLine();
             ImGui::PushItemWidth(40);
-            ImGui::InputText("##fitr", curr_row_count, IM_ARRAYSIZE(curr_row_count),ImGuiInputTextFlags_ReadOnly);
+            ImGui::InputText("##fitr", manager->curr_row_count, IM_ARRAYSIZE(manager->curr_row_count),ImGuiInputTextFlags_ReadOnly);
             ImGui::PopItemWidth();
 
             ImGui::Spacing();
-            ImGui::InputTextMultiline("##raw_row", raw_row, IM_ARRAYSIZE(raw_row), ImVec2(ImGui::GetWindowWidth() - 20, 100));
+            ImGui::InputTextMultiline("##raw_row", manager->raw_row, IM_ARRAYSIZE(manager->raw_row), ImVec2(ImGui::GetWindowWidth() - 20, 100));
+            ImGui::Spacing();
+
+            if (ImGui::Button("<< Back Row", ImVec2(100, 20)))
+                manager->on_click_back_row();
+            
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+            if (ImGui::Button("Next Row >>", ImVec2(100, 20)))
+                manager->on_click_next_row();
+            
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+            if (ImGui::Button("Delete Row", ImVec2(100, 20)))
+                manager->on_click_delete_row();
+
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+            if (ImGui::Button("↑↑ Update Raw ↑↑", ImVec2(100, 20)))
+                manager->on_click_update_raw();
+
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+            if (ImGui::Button("Next Error >>", ImVec2(100, 20)))
+                manager->on_click_next_error();
 
             ImGui::End();
         }
