@@ -10,9 +10,7 @@ public:
   BaseUI(int _width, int _height, std::string _title) : width{_width}, height{_height}, title{_title} 
   { }
   ~BaseUI() 
-  {
-    delete io;
-  }
+  { }
   virtual void start_loop(std::function<void()> func) = 0;
 
   ImGuiIO* io;

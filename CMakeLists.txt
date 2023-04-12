@@ -12,6 +12,7 @@ find_package(glfw3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(GTest)
+find_package(tinyfiledialogs CONFIG REQUIRED)
 
 include_directories(include imgui)
 
@@ -38,7 +39,7 @@ add_executable(fix-csv
   ${IMGUI_SOURCES}
 )
 
-target_link_libraries(fix-csv PRIVATE OpenGL::GL glfw spdlog::spdlog fmt::fmt)
+target_link_libraries(fix-csv PRIVATE OpenGL::GL glfw spdlog::spdlog fmt::fmt tinyfiledialogs::tinyfiledialogs)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   message("-> Release mode")
