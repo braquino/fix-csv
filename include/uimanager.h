@@ -23,6 +23,10 @@ public:
     {"3rd appearance", "", ""}
   };
   char num_rows[9] = "";
+  float progress = 0.0f;
+  bool show_progress = false;
+  Row row{};
+  Row header{};
 
   void on_click_open_file();
   void on_click_close_file();
@@ -35,9 +39,10 @@ public:
   void on_click_save_row();
   void on_click_next_error();
   void on_click_update_raw();
+  void open();
 
 private:
-  std::unique_ptr<CsvManager> csv;
+  std::shared_ptr<CsvManager> csv;
 
   void reset();
   void row_change(const Row& r);

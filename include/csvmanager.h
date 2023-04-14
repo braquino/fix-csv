@@ -36,7 +36,7 @@ struct Row {
     std::vector<Field> fields;
     std::vector<std::string> error_state;
 
-    Row(const std::string& s, char sep = ',', char quote = '"', char newline = '\n');
+    Row(const std::string& s = "", char sep = ',', char quote = '"', char newline = '\n');
     bool quote_error();
     bool field_count_error(uint16_t header_count);
     bool non_print_char_error();

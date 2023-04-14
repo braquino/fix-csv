@@ -12,6 +12,12 @@ int main(int, char**)
 
     auto manager = std::make_unique<UiManager>();
 
+    ImGui::StyleColorsLight();
+    auto& style = ImGui::GetStyle();
+    style.FrameBorderSize = 1;
+    style.FrameRounding = 3;
+    style.WindowRounding = 3;
+
     ui->start_loop([&ui, &manager]{
         static float f = 0.0f;
         static int counter = 0;
@@ -135,7 +141,7 @@ int main(int, char**)
 
             ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
 
-            if (ImGui::Button("↑↑ Update Raw ↑↑", ImVec2(100, 20)))
+            if (ImGui::Button("Update Raw Row", ImVec2(100, 20)))
                 manager->on_click_update_raw();
 
             ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
@@ -145,6 +151,24 @@ int main(int, char**)
 
             ImGui::End();
         }
+
+        { // Table Row
+            ImGui::Begin("Table Row");
+            if (!manager->header.str.empty())
+                render_table(manager->header, manager->row);
+            ImGui::End();
+        }
+    
+        { // Progress
+            if (manager->show_progress)
+            {
+                ImGui::Begin("Loading");
+                ImGui::ProgressBar(manager->progress);
+                ImGui::End();
+            }
+        }
+
+        ImGui::ShowDemoWindow();
     });
 
     return 0;

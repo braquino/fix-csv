@@ -2,12 +2,18 @@
 #define HELPERUI_H_
 
 #include "imgui.h"
+#include "csvmanager.h"
+#include "spdlog/spdlog.h"
 #include <string>
+#include <future>
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 ImVec2 operator+(const ImVec2& a, const ImVec2& b);
 
-struct RowStatRank 
-{
+struct RowStatRank {
   const std::string row_name;
   char number_columns[9];
   char percent_rows[9];
@@ -17,5 +23,11 @@ struct RowStatRank
   void render(const ImVec2& start_pos);
 };
 
+void update_progress_bar(const std::shared_ptr<CsvManager>& _csv, 
+                         const double& file_size, 
+                         float& _progress, 
+                         bool& _show_progress);
+                      
+void render_table(const Row& header, const Row& r);
 
 #endif // HELPERUI_H_
