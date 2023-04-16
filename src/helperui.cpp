@@ -17,25 +17,25 @@ void RowStatRank::render(const ImVec2& start_pos)
   ImGui::PopItemWidth();
 
   ImGui::SetCursorPos(start_pos + ImVec2(150, -2));
-  ImGui::PushItemWidth(60);
+  ImGui::PushItemWidth(90);
   ImGui::InputText(id2.c_str(), this->percent_rows, IM_ARRAYSIZE(percent_rows), ImGuiInputTextFlags_ReadOnly);
   ImGui::PopItemWidth();
 }
 
-void update_progress_bar(const std::shared_ptr<CsvManager>& _csv, 
-                         const double& file_size, 
+void update_progress_bar(const std::shared_ptr<CsvManager> _csv, 
                          float& _progress, 
                          bool& _show_progress)
 {
-    _progress = 0.0f;
-    spdlog::debug("File size: {}", file_size);
-    while(_show_progress) {
-      _progress = _csv->get_position() / file_size;
-      std::this_thread::sleep_for(50ms);
-    }
+  double file_size = (double)_csv->get_size();
+  _progress = 0.0f;
+  spdlog::debug("File size: {}", file_size);
+  while(_show_progress) {
+    _progress = _csv->get_position() / file_size;
+    std::this_thread::sleep_for(50ms);
+  }
 }
 
-void render_table(const Row& header, const Row& r)
+void render_table(const Row& header, const Row& r, const std::shared_ptr<RowsReport>& stats)
 { 
   uint16_t cols = std::max(r.col_count, header.col_count);
 
@@ -45,22 +45,25 @@ void render_table(const Row& header, const Row& r)
     | ImGuiTableFlags_BordersH
     | ImGuiTableFlags_BordersV
     | ImGuiTableFlags_ScrollX
-    | ImGuiTableFlags_Resizable;
+    | ImGuiTableFlags_Resizable
+    | ImGuiTableFlags_NoSavedSettings;
 
   ImGui::BeginTable("##table_row", cols + 1, flags);
 
-  ImGui::TableNextColumn();
-  ImGui::Text("   ");
+  ImGui::TableSetupColumn("   ", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 
   for (int i=0; i<cols; i++)
   {
-    ImGui::TableNextColumn();
     if (i < header.fields.size())
-      ImGui::TableHeader(fmt::format("{:d}: {:s}", i, header.fields[i].str).c_str());
+      ImGui::TableSetupColumn(
+        fmt::format("{:d}: {:s}", i, header.fields[i].str).c_str(),
+        ImGuiTableColumnFlags_WidthFixed, 120.0f
+      );
     else
-      ImGui::TableHeader("   ");
+      ImGui::TableSetupColumn(" ", ImGuiTableColumnFlags_WidthFixed, 120.0f);
   }
-  
+  ImGui::TableHeadersRow();
+
   ImGui::TableNextColumn();
   ImGui::Text("string");
 
@@ -107,6 +110,66 @@ void render_table(const Row& header, const Row& r)
       ImGui::Text("%s", r.fields[i].stype_str().c_str());
     else
       ImGui::Text("   ");
+  }
+
+  if (!stats->field_statistic.empty())
+  {
+    ImGui::TableNextColumn();
+    ImGui::Text("Statistics");
+
+    for (int i=0; i<cols; i++)
+    {
+      ImGui::TableNextColumn();
+      ImGui::Text("  ");
+    }
+
+    ImGui::TableNextColumn();
+    ImGui::Text("1st type");
+
+    for (int i=0; i<cols; i++)
+    {
+      ImGui::TableNextColumn();
+      if (i < stats->field_statistic.size())
+        ImGui::Text(
+          "%s: %.2f%%", 
+          Field::stype_to_string(stats->field_statistic[i].type_first).c_str(),
+          stats->field_statistic[i].perc_type_first * 100
+        );
+      else
+        ImGui::Text("   ");
+    }
+
+    ImGui::TableNextColumn();
+    ImGui::Text("2nd type");
+
+    for (int i=0; i<cols; i++)
+    {
+      ImGui::TableNextColumn();
+      if (i < stats->field_statistic.size())
+        ImGui::Text(
+          "%s: %.2f%%", 
+          Field::stype_to_string(stats->field_statistic[i].type_second).c_str(),
+          stats->field_statistic[i].perc_type_second * 100
+        );
+      else
+        ImGui::Text("   ");
+    } 
+
+    ImGui::TableNextColumn();
+    ImGui::Text("3rd type");
+
+    for (int i=0; i<cols; i++)
+    {
+      ImGui::TableNextColumn();
+      if (i < stats->field_statistic.size())
+        ImGui::Text(
+          "%s: %.2f%%", 
+          Field::stype_to_string(stats->field_statistic[i].type_third).c_str(),
+          stats->field_statistic[i].perc_type_third * 100
+        );
+      else
+        ImGui::Text("   ");
+    }  
   }
 
   ImGui::EndTable();

@@ -3,6 +3,7 @@
 
 #include "imgui.h"
 #include "csvmanager.h"
+#include "csvstatistics.h"
 #include "spdlog/spdlog.h"
 #include <string>
 #include <future>
@@ -23,11 +24,10 @@ struct RowStatRank {
   void render(const ImVec2& start_pos);
 };
 
-void update_progress_bar(const std::shared_ptr<CsvManager>& _csv, 
-                         const double& file_size, 
+void update_progress_bar(const std::shared_ptr<CsvManager> _csv, 
                          float& _progress, 
                          bool& _show_progress);
                       
-void render_table(const Row& header, const Row& r);
+void render_table(const Row& header, const Row& r, const std::shared_ptr<RowsReport>& stats);
 
 #endif // HELPERUI_H_

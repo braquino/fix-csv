@@ -17,6 +17,7 @@ int main(int, char**)
     style.FrameBorderSize = 1;
     style.FrameRounding = 3;
     style.WindowRounding = 3;
+    ui->io->ConfigWindowsMoveFromTitleBarOnly = true;
 
     ui->start_loop([&ui, &manager]{
         static float f = 0.0f;
@@ -85,8 +86,8 @@ int main(int, char**)
             ImGui::SetCursorPos(ImVec2(15,30));
             ImGui::Text("Rows:");
 
-            ImGui::SetCursorPos(ImVec2(64,28));
-            ImGui::PushItemWidth(131);
+            ImGui::SetCursorPos(ImVec2(57,28));
+            ImGui::PushItemWidth(120);
             ImGui::InputText("##5", manager->num_rows, IM_ARRAYSIZE(manager->num_rows));
             ImGui::PopItemWidth();
 
@@ -95,6 +96,10 @@ int main(int, char**)
 
             for (int i=0; i<3; i++)
                 manager->col_rank[i].render(ImVec2(40, 83 + i * 22));
+
+            ImGui::SetCursorPos(ImVec2(190,30));
+            if (ImGui::Button("Calculate\nStatistics", ImVec2(100, 33)))
+                manager->on_click_calculate_statistics();
 
             ImGui::End();
         }
@@ -123,7 +128,9 @@ int main(int, char**)
             ImGui::PopItemWidth();
 
             ImGui::Spacing();
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + ImGui::GetWindowWidth() - 20);
             ImGui::InputTextMultiline("##raw_row", manager->raw_row, IM_ARRAYSIZE(manager->raw_row), ImVec2(ImGui::GetWindowWidth() - 20, 100));
+            ImGui::PopTextWrapPos();
             ImGui::Spacing();
 
             if (ImGui::Button("<< Back Row", ImVec2(100, 20)))
@@ -141,13 +148,9 @@ int main(int, char**)
 
             ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
 
-            if (ImGui::Button("Update Raw Row", ImVec2(100, 20)))
+            if (ImGui::Button("Update Raw Row", ImVec2(130, 20)))
                 manager->on_click_update_raw();
 
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-
-            if (ImGui::Button("Next Error >>", ImVec2(100, 20)))
-                manager->on_click_next_error();
 
             ImGui::End();
         }
@@ -155,10 +158,28 @@ int main(int, char**)
         { // Table Row
             ImGui::Begin("Table Row");
             if (!manager->header.str.empty())
-                render_table(manager->header, manager->row);
+                render_table(manager->header, manager->row, manager->stats);
             ImGui::End();
         }
-    
+
+        { // Find Error
+            ImGui::Begin("Find Erros");
+
+            if (ImGui::Button("Find Next Error", ImVec2(120, 30)))
+                manager->on_click_next_error();
+            ImGui::Spacing();
+            ImGui::Checkbox("Bad field count", &manager->f_error_field_count);
+            ImGui::Checkbox("Invalid quote", &manager->f_error_bad_quote);
+            ImGui::Checkbox("Non printable char", &manager->f_error_non_print_char);
+            ImGui::Spacing();
+            ImGui::Checkbox("Wrong type in field", &manager->f_error_type);
+            ImGui::Combo("Type", &manager->f_err_selected_type, manager->f_err_type_opt_str);
+            ImGui::Combo("Field", &manager->f_err_selected_field, manager->f_err_type_opt_fields_str);
+            
+
+            ImGui::End();
+        }
+
         { // Progress
             if (manager->show_progress)
             {
