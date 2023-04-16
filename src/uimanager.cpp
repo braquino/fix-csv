@@ -231,7 +231,7 @@ void UiManager::on_click_next_error()
         _this->f_error_bad_quote,
         _this->f_error_non_print_char,
         _this->f_err_selected_field, 
-        _this->f_err_type_opt[_this->f_err_selected_field]
+        _this->f_err_type_opt[_this->f_err_selected_type]
       );
       if (!error.fields.empty())
       {

@@ -1,14 +1,24 @@
 #include "baseui.h"
 #include "uimanager.h"
+#include "logsinkui.h"
 #include "opengl_glfw_ui.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_sinks.h"
 
 
 int main(int, char**)
 {   
+    auto log = std::make_shared<LogAppImGui>();
+    auto ui_log_sink = std::make_shared<LogSinkUi_mt>(log);
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+
+    auto logger = std::make_shared<spdlog::logger>("logger");
+    logger->sinks().push_back(console_sink);
+    logger->sinks().push_back(ui_log_sink);
+    spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::debug);
 
-    std::unique_ptr<BaseUI> ui = std::make_unique<OpenglGlfwUI>(1280, 720, "fix-csv");
+    std::unique_ptr<BaseUI> ui = std::make_unique<OpenglGlfwUI>(1280, 820, "fix-csv");
 
     auto manager = std::make_unique<UiManager>();
 
@@ -19,7 +29,7 @@ int main(int, char**)
     style.WindowRounding = 3;
     ui->io->ConfigWindowsMoveFromTitleBarOnly = true;
 
-    ui->start_loop([&ui, &manager]{
+    ui->start_loop([&ui, &manager, &log]{
         static float f = 0.0f;
         static int counter = 0;
 
@@ -163,7 +173,7 @@ int main(int, char**)
         }
 
         { // Find Error
-            ImGui::Begin("Find Erros");
+            ImGui::Begin("Find Errors");
 
             if (ImGui::Button("Find Next Error", ImVec2(120, 30)))
                 manager->on_click_next_error();
@@ -176,8 +186,11 @@ int main(int, char**)
             ImGui::Combo("Type", &manager->f_err_selected_type, manager->f_err_type_opt_str);
             ImGui::Combo("Field", &manager->f_err_selected_field, manager->f_err_type_opt_fields_str);
             
-
             ImGui::End();
+        }
+
+        { // Logs
+            log->Draw("Log");
         }
 
         { // Progress

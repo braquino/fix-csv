@@ -36,6 +36,7 @@ set(PROJECT_SOURCES
   include/opengl_glfw_ui.h
   include/uimanager.h
   include/helperui.h
+  include/logsinkui.h
 )
 
 add_executable(fix-csv
