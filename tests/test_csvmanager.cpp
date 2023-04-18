@@ -3,7 +3,7 @@
 
 TEST(CsvManager, Field)
 {
-    Field s{"field1"};
+    Field s{"field1_ù"};
     ASSERT_EQ(s.char_count, 6);
     ASSERT_EQ(s.str, "field1");
     ASSERT_EQ(s.hex(), "66 69 65 6c 64 31 ");
@@ -161,4 +161,20 @@ TEST(CsvManager, saveReplacedreplaceRow)
     f.close();
     remove("../tests/resources/file_test_4.csv.out");
     ASSERT_EQ(ss.str(),"col1,\"col2\",col3,col4\nreplaced row 2\nreplaced row 1\n332,454,ddw,fe\n\"904,2\",xx,x,,ì\n");
+}
+
+TEST(CsvManager, FileSize)
+{
+    CsvManager csv;
+    csv.open_file("../tests/resources/file_test_1.csv");
+    ASSERT_EQ(csv.get_size(), 81);
+    ASSERT_EQ(csv.get_position(), 0);
+    csv.next_row();
+    ASSERT_EQ(csv.get_position(), 22);
+    csv.next_row();
+    ASSERT_EQ(csv.get_position(), 41);
+    csv.next_row();
+    ASSERT_EQ(csv.get_position(), 65); // 'ù' Unicode 16 bits
+    csv.next_row();
+    ASSERT_EQ(csv.get_position(), 81);
 }

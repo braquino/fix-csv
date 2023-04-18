@@ -47,6 +47,11 @@ void UiManager::reset()
   this->stats = std::make_shared<RowsReport>();
   this->f_err_type_opt_fields_str[0] = 0;
   this->f_err_type_opt_fields_str[1] = 0;
+  for (int i=0; i<3; i++) 
+  {
+    this->col_rank[i].number_columns[0] = 0;
+    this->col_rank[i].percent_rows[0] = 0;
+  }
 }
 
 void UiManager::row_change(const Row& r)
@@ -164,11 +169,6 @@ void UiManager::on_click_reset_file()
   this->open();
 }
 
-void UiManager::on_click_statistics()
-{
-  spdlog::debug("Calculate statistics clicked");
-}
-
 void UiManager::on_click_next_row()
 {
   spdlog::debug("Next row clicked");
@@ -230,6 +230,7 @@ void UiManager::on_click_next_error()
         _this->f_error_field_count, 
         _this->f_error_bad_quote,
         _this->f_error_non_print_char,
+        _this->f_error_type,
         _this->f_err_selected_field, 
         _this->f_err_type_opt[_this->f_err_selected_type]
       );
@@ -242,12 +243,24 @@ void UiManager::on_click_next_error()
       else
           spdlog::warn("No more rows to show");
   };
-  func(this);
+  std::thread t{func, this};
+  std::thread t_progress{
+    update_progress_bar,
+    this->csv,
+    std::ref(this->progress),
+    std::ref(this->show_progress)
+  };
+  t.detach();
+  t_progress.detach();
 }
 
 void UiManager::on_click_update_raw()
 {
   spdlog::debug("Update raw clicked");
+  std::string new_raw{""};
+  for (const Field& f : this->row.fields)
+    new_raw +=  f.str + this->sep[0];
+  strcpy(this->raw_row, new_raw.substr(0, new_raw.size() - 1).c_str());
 }
 
 void UiManager::fill_statistic()

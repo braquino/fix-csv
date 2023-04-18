@@ -1,5 +1,6 @@
 #include "helperui.h"
-#include <fmt/core.h>
+#include "misc/cpp/imgui_stdlib.h"
+#include "fmt/core.h"
 
 ImVec2 operator+(const ImVec2& a, const ImVec2& b)
 {
@@ -35,7 +36,7 @@ void update_progress_bar(const std::shared_ptr<CsvManager> _csv,
   }
 }
 
-void render_table(const Row& header, const Row& r, const std::shared_ptr<RowsReport>& stats)
+void render_table(const Row& header, Row& r, const std::shared_ptr<RowsReport>& stats)
 { 
   uint16_t cols = std::max(r.col_count, header.col_count);
 
@@ -71,7 +72,12 @@ void render_table(const Row& header, const Row& r, const std::shared_ptr<RowsRep
   {
     ImGui::TableNextColumn();
     if (i < r.fields.size())
-      ImGui::Text("%s", r.fields[i].str.c_str());
+    {
+      ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 4);
+      ImGui::PushItemWidth(ImGui::GetColumnWidth(i) + 4);
+      ImGui::InputText(fmt::format("##field_edit{}", i).c_str(), &r.fields[i].str);
+      ImGui::PopItemWidth();
+    }
     else
       ImGui::Text("   ");
   }

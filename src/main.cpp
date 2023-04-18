@@ -98,7 +98,7 @@ int main(int, char**)
 
             ImGui::SetCursorPos(ImVec2(57,28));
             ImGui::PushItemWidth(120);
-            ImGui::InputText("##5", manager->num_rows, IM_ARRAYSIZE(manager->num_rows));
+            ImGui::InputText("##5", manager->num_rows, IM_ARRAYSIZE(manager->num_rows), ImGuiInputTextFlags_ReadOnly);
             ImGui::PopItemWidth();
 
             ImGui::SetCursorPos(ImVec2(15,62));
@@ -146,21 +146,29 @@ int main(int, char**)
             if (ImGui::Button("<< Back Row", ImVec2(100, 20)))
                 manager->on_click_back_row();
             
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20);
 
             if (ImGui::Button("Next Row >>", ImVec2(100, 20)))
                 manager->on_click_next_row();
-            
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
 
-            if (ImGui::Button("Delete Row", ImVec2(100, 20)))
-                manager->on_click_delete_row();
-
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 65);
 
             if (ImGui::Button("Update Raw Row", ImVec2(130, 20)))
                 manager->on_click_update_raw();
 
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 241);
+
+            if (ImGui::Button("Save Row", ImVec2(100, 20)))
+                manager->on_click_save_row();
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20);
+
+            if (ImGui::Button("Delete Row", ImVec2(100, 20)))
+                manager->on_click_delete_row();
 
             ImGui::End();
         }

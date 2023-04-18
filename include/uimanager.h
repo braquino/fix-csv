@@ -45,7 +45,6 @@ public:
   void on_click_close_file();
   void on_click_save_file();
   void on_click_reset_file();
-  void on_click_statistics();
   void on_click_next_row();
   void on_click_back_row();
   void on_click_delete_row();

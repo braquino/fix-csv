@@ -57,7 +57,11 @@ public:
     Row back_row();
     Row curr_row() {return last_row;}
     Row get_header() {return header;}
-    Row next_error(bool field_count = true, bool bad_quote = false, bool unprint_char = false, int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE);
+    Row next_error(
+        bool field_count = true, bool bad_quote = false, 
+        bool unprint_char = false, bool check_type = false,
+        int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE
+    );
     void replace_row(int64_t row_number, const std::string& content);
     int64_t count_rows();
     int64_t get_position();

@@ -21,6 +21,8 @@ FILE(GLOB IMGUI_SOURCES
   imgui/*.h
   imgui/backend/*.cpp
   imgui/backend/*.h
+  imgui/misc/cpp/*.cpp
+  imgui/misc/cpp/*.h
 )
 
 set(PROJECT_SOURCES

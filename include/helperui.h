@@ -28,6 +28,6 @@ void update_progress_bar(const std::shared_ptr<CsvManager> _csv,
                          float& _progress, 
                          bool& _show_progress);
                       
-void render_table(const Row& header, const Row& r, const std::shared_ptr<RowsReport>& stats);
+void render_table(const Row& header, Row& r, const std::shared_ptr<RowsReport>& stats);
 
 #endif // HELPERUI_H_

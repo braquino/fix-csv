@@ -102,7 +102,7 @@ Row CsvManager::back_row()
     return Row{back_row_str(), sep, quote, newline};
 }
 
-Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
+Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, bool check_type, int fld_t_idx, SimpleType fld_t)
 {
     if (this->row == 0) this->next_row();
     int64_t lastrow = this->row;
@@ -117,7 +117,7 @@ Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, 
             r.quote_error();
         if (unprint_char)
             r.non_print_char_error();
-        if (fld_t_idx > -1)
+        if (check_type && fld_t_idx > -1)
             r.check_field_type(fld_t_idx, fld_t);
         if (!r.error_state.empty())
             return r;
