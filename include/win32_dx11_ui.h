@@ -30,7 +30,8 @@ public:
     void start_loop(std::function<void()> func) override;
 
 private:
-
+    WNDCLASSEXW wc;
+    HWND hwnd;
 };
 
 #endif // WIN32_DX11_UI_H_

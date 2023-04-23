@@ -8,12 +8,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (WIN32)
-  find_library(D3DX11_LIBRARY d3dx11.lib     PATHS     "$ENV{DXSDK_DIR}/Lib/x86" "C:/Program Files (x86)/Microsoft DirectX SDK/Lib/x86")
+  set(D3D11_LIB ${D3D11_PATH}/d3d11.lib)
+  set(D3D11_COMPILER_LIB ${D3D11_PATH}/d3dcompiler.lib)
 else()
   find_package(OpenGL REQUIRED)
   find_package(glfw3 REQUIRED)
 endif()
-find_package(spdlog REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 find_package(fmt REQUIRED)
 find_package(GTest)
 find_package(tinyfiledialogs CONFIG REQUIRED)
@@ -66,7 +67,7 @@ if (WIN32)
     ${WIN_SOURCES}
     ${IMGUI_SOURCES}
   )
-  target_link_libraries(fix-csv PRIVATE ${D3DX11_LIBRARY} spdlog::spdlog fmt::fmt tinyfiledialogs::tinyfiledialogs)
+  target_link_libraries(fix-csv PRIVATE ${D3D11_LIB} ${D3D11_COMPILER_LIB} spdlog::spdlog fmt::fmt tinyfiledialogs::tinyfiledialogs)
 else()
   add_executable(fix-csv
     ${PROJECT_SOURCES}
