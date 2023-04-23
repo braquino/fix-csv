@@ -1,0 +1,9 @@
+[requires]
+ftxui/3.0.0
+spdlog/1.11.0
+gtest/1.13.0
+fmt/9.1.0
+
+[generators]
+CMakeDeps
+CMakeToolchain

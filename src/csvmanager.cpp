@@ -1,10 +1,8 @@
 #include "csvmanager.h"
-#include <fmt/core.h>
-#include <memory>
 #include <sstream>
+#include <fmt/core.h>
 
-CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, 
-    row{0}, header_count{0}, size{0}, last_row{""}, _eof{false}, header{""}
+CsvManager::CsvManager() : last_idx{{0}}, sep{','}, quote{'"'}, newline{'\n'}, row{0}, header_count{0}, size{0}, last_row{""}, _eof{false}, header{""}
 {
 
 }
@@ -15,7 +13,7 @@ void CsvManager::open_file(const std::string& path)
     size = std::filesystem::file_size(path);
     if (this->fin == nullptr)
     {
-        this->fin = std::make_unique<std::fstream>(path.c_str(), std::ios::in);
+        this->fin.reset(new std::fstream{path.c_str(), std::ios::in});
     }
     else
     {
@@ -24,11 +22,12 @@ void CsvManager::open_file(const std::string& path)
     }
 }
 
-int64_t CsvManager::get_position()
+long long CsvManager::get_position()
 {
     if (this->fin != nullptr && this->fin->is_open())
         return this->fin->tellg();
-    return 0;
+    else
+        return 0;
 }
 
 std::string CsvManager::next_row_str()
@@ -40,7 +39,7 @@ std::string CsvManager::next_row_str()
         auto idx = this->last_idx.top();
 
         bool esc{false};
-        char c = 0;
+        char c;
         while (this->fin->get(c))
         {
             idx++;
@@ -77,7 +76,7 @@ std::string CsvManager::back_row_str()
 
 Row CsvManager::next_row()
 {
-    const std::string r_str = next_row_str();
+    std::string r_str = next_row_str();
     if (!r_str.empty())
     {
         auto r = Row{r_str, sep, quote, newline};
@@ -102,10 +101,10 @@ Row CsvManager::back_row()
     return Row{back_row_str(), sep, quote, newline};
 }
 
-Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, bool check_type, int fld_t_idx, SimpleType fld_t)
+Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, int fld_t_idx, SimpleType fld_t)
 {
     if (this->row == 0) this->next_row();
-    int64_t lastrow = this->row;
+    long lastrow = this->row;
     while(true)
     {
         Row r = this->next_row();
@@ -117,7 +116,7 @@ Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, 
             r.quote_error();
         if (unprint_char)
             r.non_print_char_error();
-        if (check_type && fld_t_idx > -1)
+        if (fld_t_idx > -1)
             r.check_field_type(fld_t_idx, fld_t);
         if (!r.error_state.empty())
             return r;
@@ -126,9 +125,9 @@ Row CsvManager::next_error(bool field_count, bool bad_quote, bool unprint_char, 
     }
 }
 
-int64_t CsvManager::count_rows()
+long CsvManager::count_rows()
 {
-    int64_t count = 0;
+    long count = 0;
     while(this->fin)
     {
         if (this->next_row_str().empty()) break;
@@ -137,7 +136,7 @@ int64_t CsvManager::count_rows()
     return count;
 }
 
-void CsvManager::replace_row(int64_t row_number, const std::string& content)
+void CsvManager::replace_row(long row_number, const std::string& content)
 {
     this->replaced_rows[row_number] = content;
 }
@@ -145,7 +144,7 @@ void CsvManager::replace_row(int64_t row_number, const std::string& content)
 void CsvManager::reset()
 {
     this->row = 0;
-    this->last_idx = std::stack<int64_t>{{0}};
+    this->last_idx = std::stack<long long>{{0}};
     if (this->fin != nullptr && this->fin->is_open()) this->fin->close();
     if (!this->filename.empty()) this->fin->open(this->filename);
 }
@@ -165,7 +164,7 @@ void CsvManager::save_file(const std::string& out_path)
         if (this->replaced_rows.find(this->row) != this->replaced_rows.end())
         {
             std::string& rep_row = this->replaced_rows[this->row];
-            if (!rep_row.empty() && rep_row[0] != newline)
+            if (rep_row != "" && rep_row[0] != newline)
             {
                 out_f << rep_row;
                 if (rep_row[rep_row.size() - 1] != newline)
@@ -190,9 +189,9 @@ Field::Field(const std::string& s, const char& quote) : char_count{(uint16_t)s.s
 std::string Field::hex() const
 {
     std::stringstream ss;
-    for (const char& c : str)
+    for (int i=0; i < str.size(); i++)
     {
-        ss << fmt::format("{:02x} ", (unsigned char)c);
+        ss << fmt::format("{:02x}", (unsigned char)str[i]);
     }
     return ss.str();
 }
@@ -200,8 +199,9 @@ std::string Field::hex() const
 std::vector<unsigned char> Field::non_print_char() const
 {
     std::vector<unsigned char> result;
-    for (const unsigned char c : str)
+    for (int i=0; i < str.size(); i++)
     {
+        unsigned char c = this->str[i];
         if (c < 0x20 && c != 0x10 && c != 0x0d)
             result.push_back(c);
     }
@@ -210,12 +210,12 @@ std::vector<unsigned char> Field::non_print_char() const
 
 SimpleType is_number(const std::string& s, char quote)
 {
-    const int skip_quote = (s[0] == quote && s[s.size() - 1] == quote) ? 1 : 0;
+    int skip_quote = (s[0] == quote && s[s.size() - 1] == quote) ? 1 : 0;
     int dec = 0;
-    const int sign = (int)(s[skip_quote] == 0x2b || s[skip_quote] == 0x2d);
+    int sign = (s[skip_quote] == 0x2b || s[skip_quote] == 0x2d);
     for (int i = sign + skip_quote; i < s.size() - skip_quote; i++)
     {
-        const uint8_t c = s[i];
+        uint8_t c = s[i];
         if (c == 0x2c || c == 0x2e) dec++;
         if (c > 0x39 || c < 0x2c || dec > 1 || c == 0x2d || c == 0x2f) return SimpleType::NONE;
     }
@@ -225,8 +225,8 @@ SimpleType is_number(const std::string& s, char quote)
 
 SimpleType Field::stype() const
 {
-    if (str.empty()) return SimpleType::EMPTY;
-    const SimpleType test_num = is_number(this->str, this->quote);
+    if (str.size() == 0) return SimpleType::EMPTY;
+    SimpleType test_num = is_number(this->str, this->quote);
     if (test_num != SimpleType::NONE) return test_num;
     return SimpleType::STRING;
 }
@@ -245,7 +245,7 @@ SimpleType Field::string_to_stype(const std::string& type)
     std::stringstream ss;
     for (auto c : type)
         ss << (char)std::tolower(c);
-    const std::string t = ss.str();
+    std::string t = ss.str();
     if (t == "integer") return SimpleType::INTEGER;
     if (t == "number") return SimpleType::NUMBER;
     if (t == "empty") return SimpleType::EMPTY;
@@ -265,7 +265,7 @@ bool Field::quote_error() const
     for (int i=0; i < this->str.size(); i++)
     {
         const char& c{this->str[i]};
-        const bool open_close = ((i == 0 || i == this->str.size() - 1) && c == quote);
+        bool open_close = ((i == 0 || i == this->str.size() - 1) && c == quote);
         if (!open_close)
         {
             if (c == quote)
@@ -284,21 +284,21 @@ Row::Row(const std::string& s, char sep, char quote, char newline) : str{s}, cha
 {
     std::stringstream ss_f;
     bool esc = false;
-    char c = 0;
+    char c;
     for (int i=0; i < s.size(); i++)
     {
         c = s[i];
         if (c == quote) esc = !esc;
         if ((c == sep || c == newline) && !esc)
         {
-            fields.emplace_back(std::move(Field{ss_f.str()}));
+            fields.push_back(Field{ss_f.str()});
             ss_f.str(std::string());
             ss_f.clear();
         }
         else
         {
             ss_f << c;
-            if (i + 1 == s.size()) fields.emplace_back(std::move(Field{ss_f.str(), quote}));
+            if (i + 1 == s.size()) fields.push_back(Field{ss_f.str(), quote});
         }
     }
     col_count = fields.size();

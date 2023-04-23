@@ -1,0 +1,10 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/home/braquino/repos/fix-csv-t/build/CMakePresets.json",
+        "/home/braquino/repos/fix-csv-t/build-debug/CMakePresets.json"
+    ]
+}

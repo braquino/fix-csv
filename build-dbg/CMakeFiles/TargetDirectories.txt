@@ -1,0 +1,9 @@
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/fix-csv.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/test-fix-csv.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/test.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/edit_cache.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/rebuild_cache.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/list_install_components.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/install.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/install/local.dir
+/home/brunoaquino/repos/fix-csv-qt/build-dbg/CMakeFiles/install/strip.dir

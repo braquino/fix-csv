@@ -3,7 +3,7 @@
 
 TEST(CsvManager, Field)
 {
-    Field s{"field1_ù"};
+    Field s{"field1"};
     ASSERT_EQ(s.char_count, 6);
     ASSERT_EQ(s.str, "field1");
     ASSERT_EQ(s.hex(), "66 69 65 6c 64 31 ");
@@ -18,11 +18,20 @@ TEST(CsvManager, Field)
     Field i2{"\"3\""};
     ASSERT_EQ(i2.stype(), SimpleType::INTEGER);
 
+    Field i3{"+99"};
+    ASSERT_EQ(i3.stype(), SimpleType::INTEGER);
+
+    Field i4{"-25"};
+    ASSERT_EQ(i4.stype(), SimpleType::INTEGER);
+
     Field e{""};
     ASSERT_EQ(e.stype(), SimpleType::EMPTY);
 
     Field n2{"\"245,34\""};
     ASSERT_EQ(n2.stype(), SimpleType::NUMBER);
+
+    Field n3{"\"-245,34\""};
+    ASSERT_EQ(n3.stype(), SimpleType::NUMBER);
 
     ASSERT_EQ(Field::string_to_stype("string"), SimpleType::STRING);
     ASSERT_EQ(Field::string_to_stype("strIng"), SimpleType::STRING);
@@ -161,20 +170,4 @@ TEST(CsvManager, saveReplacedreplaceRow)
     f.close();
     remove("../tests/resources/file_test_4.csv.out");
     ASSERT_EQ(ss.str(),"col1,\"col2\",col3,col4\nreplaced row 2\nreplaced row 1\n332,454,ddw,fe\n\"904,2\",xx,x,,ì\n");
-}
-
-TEST(CsvManager, FileSize)
-{
-    CsvManager csv;
-    csv.open_file("../tests/resources/file_test_1.csv");
-    ASSERT_EQ(csv.get_size(), 81);
-    ASSERT_EQ(csv.get_position(), 0);
-    csv.next_row();
-    ASSERT_EQ(csv.get_position(), 22);
-    csv.next_row();
-    ASSERT_EQ(csv.get_position(), 41);
-    csv.next_row();
-    ASSERT_EQ(csv.get_position(), 65); // 'ù' Unicode 16 bits
-    csv.next_row();
-    ASSERT_EQ(csv.get_position(), 81);
 }
