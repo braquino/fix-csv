@@ -1,5 +1,0 @@
-if(EXISTS "/home/brunoaquino/repos/fix-csv-qt/build-dbg/test-fix-csv[1]_tests.cmake")
-  include("/home/brunoaquino/repos/fix-csv-qt/build-dbg/test-fix-csv[1]_tests.cmake")
-else()
-  add_test(test-fix-csv_NOT_BUILT test-fix-csv_NOT_BUILT)
-endif()
