@@ -16,7 +16,13 @@ int main(int, char**)
     logger->sinks().push_back(console_sink);
     logger->sinks().push_back(ui_log_sink);
     spdlog::set_default_logger(logger);
+#if DEBUG
+    spdlog::info("Initializing fix-csv in debug mode");
     spdlog::set_level(spdlog::level::debug);
+#else
+    spdlog::info("Initializing fix-csv");
+    spdlog::set_level(spdlog::level::info);
+#endif
 
     std::unique_ptr<BaseUI> ui = std::make_unique<OpenglGlfwUI>(1280, 820, "fix-csv");
 
@@ -210,7 +216,7 @@ int main(int, char**)
             }
         }
 
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
     });
 
     return 0;

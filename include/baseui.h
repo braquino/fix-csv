@@ -5,20 +5,23 @@
 #include <functional>
 #include <string>
 
-class BaseUI {
+class BaseUI
+{
 public:
-  BaseUI(int _width, int _height, std::string _title) : width{_width}, height{_height}, title{_title} 
-  { }
-  ~BaseUI() 
-  { }
-  virtual void start_loop(std::function<void()> func) = 0;
+    BaseUI(int _width, int _height, std::string _title) : width{_width}, height{_height}, title{_title}
+    {
+    }
+    ~BaseUI()
+    {
+    }
+    virtual void start_loop(std::function<void()> func) = 0;
 
-  ImGuiIO* io;
+    ImGuiIO *io;
 
 protected:
-  const int width;
-  const int height;
-  const std::string title;
+    const int width;
+    const int height;
+    const std::string title;
 };
 
 #endif // BASEUI_H_
