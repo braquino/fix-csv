@@ -1,7 +1,13 @@
 #include "baseui.h"
 #include "uimanager.h"
 #include "logsinkui.h"
-#include "opengl_glfw_ui.h"
+
+#ifdef _WIN32
+    #include "win32_dx11_ui.h"
+#else
+    #include "opengl_glfw_ui.h"
+#endif
+
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_sinks.h"
 
@@ -24,7 +30,12 @@ int main(int, char**)
     spdlog::set_level(spdlog::level::info);
 #endif
 
-    std::unique_ptr<BaseUI> ui = std::make_unique<OpenglGlfwUI>(1280, 820, "fix-csv");
+    std::unique_ptr<BaseUI> ui;
+#ifdef _WIN32
+    ui = std::make_unique<Win32Dx11UI>(1280, 820, "fix-csv");
+#else
+    ui = std::make_unique<OpenglGlfwUI>(1280, 820, "fix-csv");
+#endif
 
     auto manager = std::make_unique<UiManager>();
 
