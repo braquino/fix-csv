@@ -5,7 +5,7 @@ CsvStatistics::CsvStatistics(const Row& _header) : fields_count{"fields_count"},
     for (const Field& f : _header.fields)
     {
         this->header.push_back(f.str);
-        this->fields.push_back(std::unique_ptr<FieldStatistic>{new FieldStatistic{f.str}});
+        this->fields.push_back(std::make_unique<FieldStatistic>(FieldStatistic{f.str}));
     }
 }
 
@@ -21,7 +21,7 @@ void CsvStatistics::add_row(const Row& r)
 
 FieldReport CsvStatistics::get_field_report(const std::string& field_name) const
 {
-    int field_idx;
+    int64_t field_idx{0};
     auto it = std::find(this->header.begin(), this->header.end(), field_name);
     if (it != this->header.end())
         field_idx = std::distance(it, this->header.begin());
@@ -33,12 +33,12 @@ FieldReport CsvStatistics::get_field_report(const std::string& field_name) const
 RowsReport CsvStatistics::get_rows_report() const
 {
     auto dist = this->fields_count.get_distribution();
-    int f = (dist.size() > 0) ? dist[0].first : 0;
-    double fp = (dist.size() > 0) ? dist[0].second : 0.0;
-    int s = (dist.size() > 1) ? dist[1].first : 0;
-    double sp = (dist.size() > 1) ? dist[1].second : 0.0;
-    int t = (dist.size() > 2) ? dist[2].first : 0;
-    double tp = (dist.size() > 2) ? dist[2].second : 0.0;
+    const int f = (dist.size() > 0) ? dist[0].first : 0;
+    const double fp = (dist.size() > 0) ? dist[0].second : 0.0;
+    const int s = (dist.size() > 1) ? dist[1].first : 0;
+    const double sp = (dist.size() > 1) ? dist[1].second : 0.0;
+    const int t = (dist.size() > 2) ? dist[2].first : 0;
+    const double tp = (dist.size() > 2) ? dist[2].second : 0.0;
     RowsReport result;
     result.header = this->header;
     result.row_count = this->rows_count;
@@ -48,7 +48,7 @@ RowsReport CsvStatistics::get_rows_report() const
     result.perc_field_count_second = sp;
     result.field_count_third = t;
     result.perc_field_count_third = tp;
-    for (auto& fi_st : this->fields)
+    for (const auto& fi_st : this->fields)
         result.field_statistic.push_back(fi_st->get_report());
     return result;
 }
@@ -66,7 +66,7 @@ std::vector<std::pair<int, double>> Counter::get_distribution() const
     for (const auto& [k, v] : this->counter)
     {
         total_v += v;
-        result.push_back(std::make_pair(k, v));
+        result.emplace_back(std::move(std::make_pair(k, v)));
     }
     std::sort(result.begin(), result.end(), [](const std::pair<int, double>& el1, const std::pair<int, double>& el2){return el1.second > el2.second;});
     for (auto& [k, v] : result)
@@ -77,7 +77,7 @@ std::vector<std::pair<int, double>> Counter::get_distribution() const
 double Counter::get_mean() const
 {
     int num = 0;
-    long den = this->size();
+    const auto den = (double)this->size();
     for (const auto& [k, v] : this->counter)
     {
         num += k * v;
@@ -119,25 +119,25 @@ FieldReport FieldStatistic::get_report() const
 {
     auto dist_char = this->char_count.get_distribution();
     auto dist_type = this->types.get_distribution();
-    SimpleType f = (dist_type.size() > 0) ? (SimpleType)dist_type[0].first : SimpleType::NONE;
-    double fp = (dist_type.size() > 0) ? dist_type[0].second : 0.0;
-    SimpleType s = (dist_type.size() > 1) ? (SimpleType)dist_type[1].first : SimpleType::NONE;
-    double sp = (dist_type.size() > 1) ? dist_type[1].second : 0.0;
-    SimpleType t = (dist_type.size() > 2) ? (SimpleType)dist_type[2].first : SimpleType::NONE;
-    double tp = (dist_type.size() > 2) ? dist_type[2].second : 0.0;
+    const SimpleType f = (dist_type.size() > 0) ? (SimpleType)dist_type[0].first : SimpleType::NONE;
+    const double fp = (dist_type.size() > 0) ? dist_type[0].second : 0.0;
+    const SimpleType s = (dist_type.size() > 1) ? (SimpleType)dist_type[1].first : SimpleType::NONE;
+    const double sp = (dist_type.size() > 1) ? dist_type[1].second : 0.0;
+    const SimpleType t = (dist_type.size() > 2) ? (SimpleType)dist_type[2].first : SimpleType::NONE;
+    const double tp = (dist_type.size() > 2) ? dist_type[2].second : 0.0;
     return FieldReport{
-                .name = this->name,
-                .char_count_mean = this->char_count.get_mean(),
-                .char_count_p_95 = this->char_count.get_percentile(0.95, dist_char),
-                .char_count_p_75 = this->char_count.get_percentile(0.75, dist_char),
-                .char_count_p_50 = this->char_count.get_percentile(0.50, dist_char),
-                .char_count_p_25 = this->char_count.get_percentile(0.25, dist_char),
-                .char_count_p_05 = this->char_count.get_percentile(0.05, dist_char),
-                .type_first = f,
-                .perc_type_first = fp,
-                .type_second = s,
-                .perc_type_second = sp,
-                .type_third = t,
-                .perc_type_third = tp,
-            };
+        .name = this->name,
+        .char_count_mean = this->char_count.get_mean(),
+        .char_count_p_95 = this->char_count.get_percentile(0.95, dist_char),
+        .char_count_p_75 = this->char_count.get_percentile(0.75, dist_char),
+        .char_count_p_50 = this->char_count.get_percentile(0.50, dist_char),
+        .char_count_p_25 = this->char_count.get_percentile(0.25, dist_char),
+        .char_count_p_05 = this->char_count.get_percentile(0.05, dist_char),
+        .type_first = f,
+        .perc_type_first = fp,
+        .type_second = s,
+        .perc_type_second = sp,
+        .type_third = t,
+        .perc_type_third = tp,
+    };
 }

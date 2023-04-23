@@ -1,79 +1,66 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(fix-csv VERSION 0.1 LANGUAGES CXX)
+project(fix-csv VERSION 0.1.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_TOOLCHAIN_FILE "/home/braquino/vcpkg/scripts/buildsystems/vcpkg.cmake")
-message("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+find_package(GTest)
+find_package(tinyfiledialogs CONFIG REQUIRED)
 
-include(FetchContent)
+include_directories(include imgui)
 
-FetchContent_Declare(
-  spdlog
-  URL "https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz"
+FILE(GLOB IMGUI_SOURCES
+  imgui/*.cpp
+  imgui/*.h
+  imgui/backend/*.cpp
+  imgui/backend/*.h
+  imgui/misc/cpp/*.cpp
+  imgui/misc/cpp/*.h
 )
-FetchContent_Declare(
-  fmt
-  URL "https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz"
-)
-FetchContent_Declare(
-  googletest
-  URL "https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz"
-)
-FetchContent_MakeAvailable(spdlog fmt googletest)
-
-include_directories(include)
 
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.ui
-        src/csvmanager.cpp
-        src/csvstatistics.cpp
-        include/csvmanager.h
-        include/mainwindow.h
-        include/csvstatistics.h
+  src/main.cpp
+  src/csvmanager.cpp
+  src/csvstatistics.cpp
+  src/opengl_glfw_ui.cpp
+  src/uimanager.cpp
+  src/helperui.cpp
+  include/csvmanager.h
+  include/csvstatistics.h
+  include/baseui.h
+  include/opengl_glfw_ui.h
+  include/uimanager.h
+  include/helperui.h
+  include/logsinkui.h
 )
 
-qt_add_executable(fix-csv
-    MANUAL_FINALIZATION
-    ${PROJECT_SOURCES}
+add_executable(fix-csv
+  ${PROJECT_SOURCES}
+  ${IMGUI_SOURCES}
 )
 
-target_link_libraries(fix-csv PRIVATE Qt${QT_VERSION_MAJOR}::Widgets spdlog::spdlog fmt)
-
-set_target_properties(fix-csv PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+target_link_libraries(fix-csv PRIVATE OpenGL::GL glfw spdlog::spdlog fmt::fmt tinyfiledialogs::tinyfiledialogs)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  message("-- CMake is doing release stuffs")
+  message("-> Release mode")
   add_compile_options(-O3)
   target_compile_definitions(fix-csv PRIVATE DEBUG=0)
 else()
-  message("-- CMake is doing debbug stuffs")
+  message("-> Debug mode")
   target_compile_definitions(fix-csv PRIVATE DEBUG=1)
 endif()
 
 install(TARGETS fix-csv
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-qt_finalize_executable(fix-csv)
+  BUNDLE DESTINATION .
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 set(TEST_FILES
   tests/test_csvmanager.cpp
@@ -87,6 +74,6 @@ set(TEST_FILES
 enable_testing()
 
 add_executable(test-fix-csv ${TEST_FILES})
-target_link_libraries(test-fix-csv spdlog::spdlog fmt GTest::gtest_main)
+target_link_libraries(test-fix-csv spdlog::spdlog fmt::fmt GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(test-fix-csv)

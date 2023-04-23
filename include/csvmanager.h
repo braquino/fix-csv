@@ -8,6 +8,7 @@
 #include <stack>
 #include <regex>
 #include <filesystem>
+#include <map>
 
 enum class SimpleType {
     EMPTY, STRING, NUMBER, INTEGER, NONE
@@ -35,7 +36,7 @@ struct Row {
     std::vector<Field> fields;
     std::vector<std::string> error_state;
 
-    Row(const std::string& s, char sep = ',', char quote = '"', char newline = '\n');
+    Row(const std::string& s = "", char sep = ',', char quote = '"', char newline = '\n');
     bool quote_error();
     bool field_count_error(uint16_t header_count);
     bool non_print_char_error();
@@ -51,29 +52,36 @@ public:
     CsvManager();
     void open_file(const std::string& path);
     long curr_row_num() {return row;}
+    int get_header_count() {return header_count;}
     Row next_row();
     Row back_row();
     Row curr_row() {return last_row;}
-    Row next_error(bool field_count = true, bool bad_quote = false, bool unprint_char = false, int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE);
-    void replace_row(long row_number, const std::string& content);
-    long count_rows();
-    long long get_position();
-    long long get_size() {return size;}
+    Row get_header() {return header;}
+    Row next_error(
+        bool field_count = true, bool bad_quote = false, 
+        bool unprint_char = false, bool check_type = false,
+        int fld_t_idx = -1, SimpleType fld_t = SimpleType::NONE
+    );
+    void replace_row(int64_t row_number, const std::string& content);
+    int64_t count_rows();
+    int64_t get_position();
+    int64_t get_size() {return size;}
     void save_file(const std::string& out_path);
     void reset();
     bool eof() { return _eof; }
 
 private:
     int header_count;
-    long long size;
+    int64_t size;
     std::map<long, std::string> replaced_rows;
     std::string filename;
-    std::stack<long long> last_idx;
+    std::stack<int64_t> last_idx;
     long row;
     std::unique_ptr<std::fstream> fin;
     std::string next_row_str();
     std::string back_row_str();
     Row last_row;
+    Row header;
     bool _eof;
 };
 
